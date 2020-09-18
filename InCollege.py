@@ -89,7 +89,7 @@ def LoginToAccount():
         if(account.CheckLogin(inputUser,inputPass)):
             currentAccount = account
             print('You have successfully logged in')
-            choice = 'q'
+            choice = 'ah'
             return
     print('Incorrect username / password, please try again')
     LoginToAccount()
@@ -113,7 +113,7 @@ def mainMenu():
     LoadAccounts()
     # this is where we at first should intercept and load text file accounts
    
-    while choice != 'q':
+    while choice != 'q' and choice != 'ah':
     #present menu options (still missing a few options
       choice = input("Would you like to sign in or create an account?" + '\n' + "Press [L] to Login" + '\n' + "Press [C] to create an account"+'\n' + "Press [Q] to quit" + '\n')
       choice = choice.lower()
@@ -124,7 +124,7 @@ def mainMenu():
       elif (choice == 'l'):
            LoginToAccount()
 
-    choice = 'ah'
+    #choice = 'ah'
     while choice != 'q':
       choice = input("press [F] to find someone" + '\n' + "Press [J] to look for a job" + '\n' + "Press [L] to learn a new skill"+'\n' + "Press [Q] to quit" + '\n')
       choice = choice.lower()
