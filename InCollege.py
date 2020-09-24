@@ -65,7 +65,7 @@ def LoadAccounts():
 def CreateJob():
     if (len(jobs) >= 5):
       print('All permitted job postings have been created, please come back later')
-    return
+      return
     title = input("Enter the job title:")
     description = input("Enter a job description:")
     employer = input("Enter the employer:")
