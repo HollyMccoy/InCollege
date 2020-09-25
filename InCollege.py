@@ -178,28 +178,36 @@ def LoginToAccount():
     global choice
     global loggedIn
 
-    # take in username
-    inputUser = input("\n" + "Please enter a username: ")
+    while True:
+        # take in username
+        inputUser = input("\n" + "Please enter a username: ")
 
-    #if (inputUser.lower() =='q' ):
-    #    return False
+        # take in password
+        inputPass = input("Please enter a password: ")
 
-    # take in password
-    inputPass = input("Please enter a password: ")
+        # looks through each account, sends it straight to CheckLogin() and when one returns true it will set as current Account and inform user login was a success
+        for account in students:
+            if (account.CheckLogin(inputUser, inputPass)):
+                currentAccount = account
+                print('You have successfully logged in')
+                choice = 'ah'
+                loggedIn = True
+                return
 
-    # looks through each account, sends it straight to ChackLogin() and when one returns true it will set as current Account and inform user login was a success
-    for account in students:
-        if (account.CheckLogin(inputUser, inputPass)):
-            currentAccount = account
-            print('You have successfully logged in')
-            choice = 'ah'
-            #return True
-            loggedIn = True
-            return
-
-    print(f'Incorrect username / password, please try again, or enter [{goBack.upper()}] to go back to main menu')
-    LoginToAccount()
-    return
+        # Display an error message if the login fails
+        # Allow the user to try again or go back
+        while True:
+            choice = input(
+                '\n' + 'Incorrect username / password.' + '\n\n' \
+                'Press [L] to try again.' + '\n' \
+                f'Press [{goBack.upper()}] to return to the previous menu.' + '\n')
+            choice = choice.lower()
+            if choice == goBack:
+                return
+            elif choice == 'l':
+                break
+            else:
+                continue
 
 
 def FindContact():
@@ -209,20 +217,23 @@ def FindContact():
 
     # Append all first and last names of users to a list
     with open("Logins.txt", "r") as userFile:
-        userInfo = userFile.readline()
-        if userInfo:
-            userInfo = userInfo.split()
-            names.append({"firstName": userInfo[2], "lastName": userInfo[3]})
+        while True:
+            userInfo = userFile.readline()
+            if userInfo:
+                userInfo = userInfo.split()
+                names.append({"firstName": userInfo[2], "lastName": userInfo[3]})
+            else:
+                break
 
     firstName = input("\n" + "Enter first name: ")
     lastName = input("Enter last name: ")
 
     # Search the list of names for a matching first and last name
     for name in names:
+        print(name.get('firstName'), name.get('lastName'))
         if firstName == name.get('firstName') and lastName == name.get('lastName'):
             found = True
             print("\n" + "They are a part of the InCollege system.")
-
             break
     if not found:
         print("\n" + "They are not yet a part of the InCollege system.")
@@ -250,6 +261,7 @@ def LearnSkill():
         print(f"Press [{goBack.upper()}] to return to the previous menu")
 
         selection = input("")
+        selection = selection.lower()
         if selection in skills.keys():
             print("Under construction" + "\n")
         elif selection == goBack:
