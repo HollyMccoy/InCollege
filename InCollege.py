@@ -109,8 +109,9 @@ def LoadAccounts():
     userPass = logins.readlines()
 
     for account in userPass:
-        credentials = account.split()
-        students.append(User(credentials[0], credentials[1], credentials[2], credentials[3]))
+        if account:
+            credentials = account.split()
+            students.append(User(credentials[0], credentials[1], credentials[2], credentials[3]))
     # userPass = userPass.split()
     # print(userPass)
 
