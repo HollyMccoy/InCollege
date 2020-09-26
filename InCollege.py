@@ -110,8 +110,12 @@ def LoadAccounts():
 
     for account in userPass:
         if account:
-            credentials = account.split()
-            students.append(User(credentials[0], credentials[1], credentials[2], credentials[3]))
+            try:
+                credentials = account.split()
+                students.append(User(credentials[0], credentials[1], credentials[2], credentials[3]))
+            except IndexError:
+                print('Index error')
+                input("")
     # userPass = userPass.split()
     # print(userPass)
 
@@ -313,9 +317,9 @@ def mainMenu():
             elif (choice == 'f'):
                 FindContact()
             elif (choice == 'w'):
-                print("\n" + "Video is now playing")
+                print("\n" + "Video is now playing", flush=True)
                 time.sleep(20)
-                print("Video ending...")
+                print("Video ending...", flush=True)
                 time.sleep(3)
             elif (choice == goBack): # Break out of the inner loop
                 break
