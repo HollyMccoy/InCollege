@@ -110,15 +110,10 @@ def LoadAccounts():
 
     for account in userPass:
         if account:
-            try:
-                credentials = account.split()
-                students.append(User(credentials[0], credentials[1], credentials[2], credentials[3]))
-            except IndexError:
-                print('Index error')
-                input("")
+            credentials = account.split()
+            students.append(User(credentials[0], credentials[1], credentials[2], credentials[3]))
     # userPass = userPass.split()
     # print(userPass)
-
 
 def CreateJob():
     """Create a new job posting."""
@@ -317,7 +312,7 @@ def mainMenu():
             elif (choice == 'f'):
                 FindContact()
             elif (choice == 'w'):
-                print("\n" + "Video is now playing", flush=True)
+                print("Video is now playing", flush=True)
                 time.sleep(20)
                 print("Video ending...", flush=True)
                 time.sleep(3)
