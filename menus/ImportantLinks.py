@@ -2,8 +2,8 @@
 # Path: Main menu / important links
 
 import globals
-from InCollege import goBack
 from menus import GuestControls
+
 
 def ShowMenu():
     """Present the user with a menu of important InCollege links."""
@@ -19,7 +19,7 @@ def ShowMenu():
             + "[6] Copyright Policy" + '\n' \
             + "[7] Privacy Policy" + '\n' \
             + "[8] User Agreement" + '\n' \
-            + f"[{goBack.upper()}] Quit" + '\n\n')
+            + f"[{globals.goBack.upper()}] Quit" + '\n\n')
         selection = selection.lower()
 
         if (selection == '1'):
@@ -38,7 +38,7 @@ def ShowMenu():
             ShowPrivacyPolicy(filePath, "PrivacyPolicy.txt")
         elif (selection == '8'):
             ShowUserAgreement(filePath, "UserAgreement.txt")
-        elif (selection == goBack):
+        elif (selection == globals.goBack):
             return
 
 
@@ -91,7 +91,7 @@ def ShowPrivacyPolicy(filePath, fileName):
     #print("-- Privacy Policy -- " + "\n")
     while globals.loggedIn:
         selection = GuestControls.ShowMenu()
-        if (selection == goBack):
+        if (selection == globals.goBack):
             break
 
 def ShowUserAgreement(filePath, fileName):
