@@ -1,56 +1,20 @@
 # include User.py
-from User import User
 from Job import Job
+from User import User
+from menus import ImportantLinks
+import globals
 import sys, time
 
-
-def ShowLoggedOutMenu():
-    """Present menu options for when the user is logged out."""
-    global choice
-    choice = input(
-        "\n" + "Would you like to sign in or create an account?" + '\n' \
-        + "Press [L] to login" + '\n' \
-        + "Press [C] to create an account" + '\n' \
-        + "Press [F] to find someone" + '\n' \
-        + "Press [W] to watch a video" + '\n' \
-        + f"Press [{goBack.upper()}] to quit" + '\n')
-    choice = choice.lower()
-
-
-def ShowLoggedInMenu():
-    """Present menu options for when the user is logged in."""
-    global choice
-    choice = input(
-        "\n" + "Press [F] to find someone" + '\n' \
-        + "Press [J] to look for a job" + '\n' \
-        + "Press [P] to post a job" + '\n' \
-        + "Press [L] to learn a new skill" + '\n' \
-        + f"Press [{goBack.upper()}] to log out" + '\n')
-    choice = choice.lower()
-
-
-# Redundant; saved for future reference
-"""
-def ShowInviteMenu():
-    # Invite the user to login or create an account if they find a contact while logged out.
-    global choice
-    choice = input(
-        "\n" + "Join your friends today by logging in or creating an account" + "\n" \
-        + "Press [L] to login" + "\n" \
-        + "Press [C] to create an account" + "\n" \
-        + f"Press [{goBack}] to return to the previous menu")
-    choice = choice.lower()
-"""
-
+goBack = 'q'
 
 def SuccessStory():
     """Print out a student success story."""
     print()
     Story = open('SuccessStory.txt', 'r')
-    line = Story.readline()
+    line = Story.readline().rstrip()
     while line:
         print(line)
-        line = Story.readline()
+        line = Story.readline().rstrip()
     print()
 
 
@@ -83,7 +47,7 @@ def ValidatePassword(input):
 
 def ValidateUser(input):
     """Check whether the username is unique and contains only alpha-numeric characters."""
-    for account in students:
+    for account in globals.students:
         if (account.username == input):
             return False
     if (input.isalnum() == False):
@@ -109,11 +73,22 @@ def LoadAccounts():
     userPass = logins.readlines()
 
     for account in userPass:
-        if account:
+        if len(account.split()) == 8:   # Determine if an account has the correct number of parameters
             credentials = account.split()
-            students.append(User(credentials[0], credentials[1], credentials[2], credentials[3]))
+            globals.students.append(User(credentials[0],
+                credentials[1],
+                credentials[2],
+                credentials[3],
+                credentials[4],
+                credentials[5],
+                credentials[6],
+                credentials[7]))
+        else:
+            print("Warning: invalid data in logins.txt")
+            break
     # userPass = userPass.split()
     # print(userPass)
+
 
 def CreateJob():
     """Create a new job posting."""
@@ -136,7 +111,7 @@ def CreateAccount():
     validUser = False
     validPass = False
     global choice
-    if (len(students) >= 5):
+    if (len(globals.students) >= 5):
         print('\n' + 'All permitted accounts have been created, please come back later')
         return
 
@@ -164,9 +139,16 @@ def CreateAccount():
     inputLastName = input("Please enter your last name: ")
 
     # once username and password are deemed valid, place new user in .txt file and array
-    students.append(User(inputUser, inputPass, inputFirstName, inputLastName))
+    globals.students.append(User(inputUser,
+        inputPass,
+        inputFirstName,
+        inputLastName,
+        emailAlerts = True,
+        textAlerts = True,
+        targetedAdvertising = True,
+        language = "English"))
     with open("Logins.txt", "a+") as text_file:
-        print("{}".format(students[len(students) - 1].Print()), file=text_file)
+        print("{}".format(globals.students[len(globals.students) - 1].Print()), file=text_file)
 
     print('Account successfully created!')
 
@@ -176,7 +158,7 @@ def CreateAccount():
 def LoginToAccount():
     """Attempt to log the user into an account."""
     global choice
-    global loggedIn
+    #global loggedIn
 
     while True:
         # take in username
@@ -186,12 +168,12 @@ def LoginToAccount():
         inputPass = input("Please enter a password: ")
 
         # looks through each account, sends it straight to CheckLogin() and when one returns true it will set as current Account and inform user login was a success
-        for account in students:
+        for account in globals.students:
             if (account.CheckLogin(inputUser, inputPass)):
-                currentAccount = account
                 print('You have successfully logged in')
                 choice = 'ah'
-                loggedIn = True
+                globals.loggedIn = True
+                globals.currentAccount = account
                 return
 
         # Display an error message if the login fails
@@ -238,8 +220,7 @@ def FindContact():
     if not found:
         print("\n" + "They are not yet a part of the InCollege system.")
 
-    if found and not loggedIn:
-        #ShowInviteMenu()
+    if found and not globals.loggedIn:
         print("Join your friends today by signing in or creating an account.")
 
 def JobSearch():
@@ -270,6 +251,67 @@ def LearnSkill():
             continue
 
 
+def ShowLoggedOutMenu():
+    """Present menu options for when the user is logged out."""
+    #global choice
+    while True:
+        selection = input(
+            "\n" + "Would you like to sign in or create an account?" + '\n' \
+            + "Press [L] to login" + '\n' \
+            + "Press [C] to create an account" + '\n' \
+            + "Press [F] to find someone" + '\n' \
+            + "Press [W] to watch a video" + '\n' \
+            + "Press [I] to show InCollege important links" + '\n' \
+            + f"Press [{goBack.upper()}] to quit" + '\n')
+        selection = selection.lower()
+
+        # this could probs be a switch so I will SWITCH it to that haha fml
+        if (selection == 'c'):
+            CreateAccount()
+        elif (selection == 'l'):
+            LoginToAccount()
+            return selection
+        elif (selection == 'f'):
+            FindContact()
+        elif (selection == 'w'):
+            print("Video is now playing", flush=True)
+            time.sleep(20)
+            print("Video ending...", flush=True)
+            time.sleep(3)
+        elif (selection == 'i'):
+            ImportantLinks.ShowMenu()
+        elif (selection == goBack): # Break out of the inner loop
+            return selection
+
+
+def ShowLoggedInMenu():
+    """Present menu options for when the user is logged in."""
+    #global loggedIn
+    while True:
+        selection = input(
+            "\n" + "Press [F] to find someone" + '\n' \
+            + "Press [J] to look for a job" + '\n' \
+            + "Press [P] to post a job" + '\n' \
+            + "Press [L] to learn a new skill" + '\n' \
+            + "Press [I] to show InCollege important links" + '\n' \
+            + f"Press [{goBack.upper()}] to log out" + '\n')
+        selection = selection.lower()
+
+        if (selection == 'f'):
+            FindContact()
+        elif (selection == 'j'):
+            JobSearch()
+        elif (selection == 'l'):
+            LearnSkill()
+        elif (selection == 'p'):
+            CreateJob()
+        elif (selection == 'i'):
+            ImportantLinks.ShowMenu()
+        elif (selection == goBack):
+            globals.loggedIn = False
+            return selection
+
+
 # include function to call from CreateAccount()  that would create account (change user and pass from "NULL") then add info to some .txt file for permanent storage
 # include function that upon starting InCollege app would open .txt file and create already existing accounts / add them to array
 # need function to check if any account spots are left
@@ -278,18 +320,14 @@ def mainMenu():
     """Show the main menus to the user."""
     # create array of size max # of students
 
-    global students
+    #global students
     global logins
-    global loggedIn
-    global currentAccount
     global choice
     global goBack
     global jobs
     logins = open('Logins.txt', 'a+')
-    loggedIn = False
     choice = 'd'
-    goBack = 'q'
-    students = []
+    #students = []
     jobs = []
 
     LoadAccounts()
@@ -297,48 +335,19 @@ def mainMenu():
     SuccessStory()
 
     while True:  # Logged in and logged out menu loop
-
-        #while choice != 'q' and choice != 'ah':
-        while not loggedIn:
-            ShowLoggedOutMenu()
-
-            # this could probs be a switch so I will SWITCH it to that haha fml
-            if (choice == 'c'):
-                CreateAccount()
-            elif (choice == 'l'):
-                LoginToAccount()
-                #if (LoginToAccount()):
-                #    continue
-            elif (choice == 'f'):
-                FindContact()
-            elif (choice == 'w'):
-                print("Video is now playing", flush=True)
-                time.sleep(20)
-                print("Video ending...", flush=True)
-                time.sleep(3)
-            elif (choice == goBack): # Break out of the inner loop
+        while not globals.loggedIn:
+            choice = ShowLoggedOutMenu()
+            if (choice == goBack):  # Break out of the logged out menu
                 break
-
-        if (choice == goBack): # Break out of the outer loop to exit the program
+        if (choice == goBack):  # Break out of the main menu to exit the program
             break
 
-        #choice = 'ah'
-        #while choice != 'q':
-        while loggedIn:
-            ShowLoggedInMenu()
-
-            if (choice == 'f'):
-                FindContact()
-            elif (choice == 'j'):
-                JobSearch()
-            elif (choice == 'l'):
-                LearnSkill()
-            elif (choice == 'p'):
-                CreateJob()
-            elif (choice == goBack):  # Break out of the inner loop and show the logged out menu
-                loggedIn = False
+        while globals.loggedIn:
+            choice = ShowLoggedInMenu()
+            if (choice == goBack):  # Break out and go back to the logged out menu
                 break
 
 
 if __name__ == "__main__":
+    globals.Initialize()
     mainMenu()
