@@ -5,7 +5,6 @@ from menus import ImportantLinks
 import globals
 import sys, time
 
-goBack = 'q'
 
 def SuccessStory():
     """Print out a student success story."""
@@ -120,7 +119,7 @@ def CreateAccount():
 
     # take in username
     while (validUser == False):
-        inputUser = input("\n" + "Please enter a UNIQUE username without spaces:")
+        inputUser = input("\n" + "Please enter a UNIQUE username without spaces: ")
         validUser = ValidateUser(inputUser)
 
     # ** this is where we should validate username  (not the same as another username)
@@ -128,7 +127,7 @@ def CreateAccount():
     # take in password
     while (validPass == False):
         inputPass = input(
-            "Please enter a password (must conatin 8 to 12 characters, one capital letter, one digit, and one symbol) :")
+            "Please enter a password (must contain 8 to 12 characters, one capital letter, one digit, and one symbol): ")
         validPass = ValidatePassword(inputPass)
         # below should also confirm password is valid ( minimum of 8 characters), (maximum of 12 characters), (at least one capital letter), (one digit), (one non-alpha character)
 
@@ -182,9 +181,9 @@ def LoginToAccount():
             choice = input(
                 '\n' + 'Incorrect username / password.' + '\n\n' \
                 'Press [L] to try again.' + '\n' \
-                f'Press [{goBack.upper()}] to return to the previous menu.' + '\n')
+                f'Press [{globals.goBack.upper()}] to return to the previous menu.' + '\n')
             choice = choice.lower()
-            if choice == goBack:
+            if choice == globals.goBack:
                 return
             elif choice == 'l':
                 break
@@ -239,13 +238,13 @@ def LearnSkill():
     # Prompt the user to select a skill
     while True:
         [print(f'Press [{skillNum}] to learn about {skill.lower()}') for skillNum, skill in skills.items()]
-        print(f"Press [{goBack.upper()}] to return to the previous menu")
+        print(f"Press [{globals.goBack.upper()}] to return to the previous menu")
 
         selection = input("")
         selection = selection.lower()
         if selection in skills.keys():
             print("Under construction" + "\n")
-        elif selection == goBack:
+        elif selection == globals.goBack:
             break
         elif selection not in skills.keys():
             continue
@@ -253,7 +252,6 @@ def LearnSkill():
 
 def ShowLoggedOutMenu():
     """Present menu options for when the user is logged out."""
-    #global choice
     while True:
         selection = input(
             "\n" + "Would you like to sign in or create an account?" + '\n' \
@@ -262,7 +260,7 @@ def ShowLoggedOutMenu():
             + "Press [F] to find someone" + '\n' \
             + "Press [W] to watch a video" + '\n' \
             + "Press [I] to show InCollege important links" + '\n' \
-            + f"Press [{goBack.upper()}] to quit" + '\n')
+            + f"Press [{globals.goBack.upper()}] to quit" + '\n')
         selection = selection.lower()
 
         # this could probs be a switch so I will SWITCH it to that haha fml
@@ -280,13 +278,12 @@ def ShowLoggedOutMenu():
             time.sleep(3)
         elif (selection == 'i'):
             ImportantLinks.ShowMenu()
-        elif (selection == goBack): # Break out of the inner loop
+        elif (selection == globals.goBack): # Break out of the inner loop
             return selection
 
 
 def ShowLoggedInMenu():
     """Present menu options for when the user is logged in."""
-    #global loggedIn
     while True:
         selection = input(
             "\n" + "Press [F] to find someone" + '\n' \
@@ -294,7 +291,7 @@ def ShowLoggedInMenu():
             + "Press [P] to post a job" + '\n' \
             + "Press [L] to learn a new skill" + '\n' \
             + "Press [I] to show InCollege important links" + '\n' \
-            + f"Press [{goBack.upper()}] to log out" + '\n')
+            + f"Press [{globals.goBack.upper()}] to log out" + '\n')
         selection = selection.lower()
 
         if (selection == 'f'):
@@ -307,7 +304,7 @@ def ShowLoggedInMenu():
             CreateJob()
         elif (selection == 'i'):
             ImportantLinks.ShowMenu()
-        elif (selection == goBack):
+        elif (selection == globals.goBack):
             globals.loggedIn = False
             return selection
 
@@ -320,14 +317,11 @@ def mainMenu():
     """Show the main menus to the user."""
     # create array of size max # of students
 
-    #global students
     global logins
     global choice
-    global goBack
     global jobs
     logins = open('Logins.txt', 'a+')
     choice = 'd'
-    #students = []
     jobs = []
 
     LoadAccounts()
@@ -337,14 +331,14 @@ def mainMenu():
     while True:  # Logged in and logged out menu loop
         while not globals.loggedIn:
             choice = ShowLoggedOutMenu()
-            if (choice == goBack):  # Break out of the logged out menu
+            if (choice == globals.goBack):  # Break out of the logged out menu
                 break
-        if (choice == goBack):  # Break out of the main menu to exit the program
+        if (choice == globals.goBack):  # Break out of the main menu to exit the program
             break
 
         while globals.loggedIn:
             choice = ShowLoggedInMenu()
-            if (choice == goBack):  # Break out and go back to the logged out menu
+            if (choice == globals.goBack):  # Break out and go back to the logged out menu
                 break
 
 
