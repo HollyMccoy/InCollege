@@ -19,7 +19,7 @@ def ShowMenu():
             + "[6] Copyright Policy" + '\n' \
             + "[7] Privacy Policy" + '\n' \
             + "[8] User Agreement" + '\n' \
-            + f"[{globals.goBack.upper()}] Quit" + '\n\n')
+            + f"[{globals.goBack.upper()}] Return to the previous menu" + '\n\n')
         selection = selection.lower()
 
         if (selection == '1'):
@@ -51,50 +51,59 @@ def PrintFile(filePath, fileName):
 
 def ShowAbout(filePath, fileName):
     """Print out the About document."""
-    #print("-- About -- " + "\n")
+    print("-- About -- " + "\n")
     PrintFile(filePath, fileName)
+    globals.ReturnPrompt()
 
 
 def ShowAccessibility(filePath, fileName):
     """Print out the accessibility document."""
-    #print("-- Accessibility -- " + "\n")
+    print("-- Accessibility -- " + "\n")
     PrintFile(filePath, fileName)
+    globals.ReturnPrompt()
 
 
 def ShowBrandPolicy(filePath, fileName):
     """Print out the brand policy."""
-    #print("-- Brand Policy -- " + "\n")
+    print("-- Brand Policy -- " + "\n")
     PrintFile(filePath, fileName)
+    globals.ReturnPrompt()
 
 
 def ShowCookiePolicy(filePath, fileName):
     """Print out the cookie policy."""
-    #print("-- Cookie Policy -- " + "\n")
+    print("-- Cookie Policy -- " + "\n")
     PrintFile(filePath, fileName)
+    globals.ReturnPrompt()
 
 
 def ShowCopyrightNotice(filePath, fileName):
     """Print out the copyright notice."""
-    #print("-- Copyright Notice -- " + "\n")
+    print("-- Copyright Notice -- " + "\n")
     PrintFile(filePath, fileName)
+    globals.ReturnPrompt()
 
 
 def ShowCopyrightPolicy(filePath, fileName):
     """Print out the copyright policy."""
-    #print("-- Copyright Policy -- " + "\n")
+    print("-- Copyright Policy -- " + "\n")
     PrintFile(filePath, fileName)
+    globals.ReturnPrompt()
 
 
 def ShowPrivacyPolicy(filePath, fileName):
     """Print out the privacy policy AND~~~~~~~~~~."""
+    print("-- Privacy Policy -- " + "\n")
     PrintFile(filePath, fileName)
-    #print("-- Privacy Policy -- " + "\n")
     while globals.loggedIn:
         selection = GuestControls.ShowMenu()
         if (selection == globals.goBack):
             break
+    if not globals.loggedIn:
+        globals.ReturnPrompt()
 
 def ShowUserAgreement(filePath, fileName):
     """Print out the user agreement."""
-    #print("-- User Agreement -- " + "\n")
+    print("-- User Agreement -- " + "\n")
     PrintFile(filePath, fileName)
+    globals.ReturnPrompt()

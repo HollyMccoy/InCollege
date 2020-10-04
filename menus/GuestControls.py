@@ -29,7 +29,7 @@ def ShowGuestControls():
             + f"[2] SMS alerts: {globals.currentAccount.textAlerts}" + '\n' \
             + f"[3] Targeted advertising: {globals.currentAccount.targetedAdvertising}" + '\n' \
             + f"[4] Languages: {globals.currentAccount.language}" + '\n' \
-            + f"[{globals.goBack.upper()}] Quit" + '\n\n')
+            + f"[{globals.goBack.upper()}] Return to the previous menu" + '\n\n')
         selection = selection.lower()
 
         if (selection == "1"):

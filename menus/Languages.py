@@ -12,7 +12,7 @@ def ShowMenu():
             + f"Current language: {globals.currentAccount.language}" + '\n\n' \
             + "[1] English" + '\n' \
             + "[2] Spanish" + '\n' \
-            + f"[{globals.goBack.upper()}] Quit" + '\n\n')
+            + f"[{globals.goBack.upper()}] Return to the previous menu" + '\n\n')
         selection = selection.lower()
 
         if (selection == "1"):
@@ -23,18 +23,3 @@ def ShowMenu():
             globals.updateAccounts()
         elif (selection == globals.goBack):
             return
-
-'''
-with open("Logins.txt", "a+") as text_file:
-    text_file.seek(0)
-    while True:
-        #line = text_file.readline().rstrip().split()
-        account = text_file.readline().rstrip().split()
-        if account:
-            if globals.currentAccount.username == account[0]:
-                print(f"ACCOUNT FOUND: {account[0]}")
-                print(f"{globals.currentAccount.Print()}", file=text_file)
-                break
-        else:
-            break
-'''
