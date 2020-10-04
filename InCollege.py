@@ -259,7 +259,7 @@ def ShowLoggedOutMenu():
             + "Press [C] to create an account" + '\n' \
             + "Press [F] to find someone" + '\n' \
             + "Press [W] to watch a video" + '\n' \
-            + "Press [G] for General links" + '\n' \
+            + "Press [U] for Useful Links" + '\n' \
             + "Press [I] to show InCollege important links" + '\n' \
             + f"Press [{globals.goBack.upper()}] to quit" + '\n')
         selection = selection.lower()
@@ -277,8 +277,8 @@ def ShowLoggedOutMenu():
             time.sleep(20)
             print("Video ending...", flush=True)
             time.sleep(3)
-        elif (selection == 'g'):
-            ShowGeneralLinks()
+        elif (selection == 'u'):
+            ShowUsefulLinks()
         elif (selection == 'i'):
             ImportantLinks.ShowMenu()
         elif (selection == globals.goBack): # Break out of the inner loop
@@ -293,7 +293,7 @@ def ShowLoggedInMenu():
             + "Press [J] to look for a job" + '\n' \
             + "Press [P] to post a job" + '\n' \
             + "Press [L] to learn a new skill" + '\n' \
-            + "Press [G] for General links" + '\n' \
+            + "Press [U] for Useful Links" + '\n' \
             + "Press [I] to show InCollege important links" + '\n' \
             + f"Press [{globals.goBack.upper()}] to log out" + '\n')
         selection = selection.lower()
@@ -308,8 +308,8 @@ def ShowLoggedInMenu():
             CreateJob()
         elif (selection == 'i'):
             ImportantLinks.ShowMenu()
-        elif (selection == 'g'):
-            ShowGeneralLinks()
+        elif (selection == 'u'):
+            ShowUsefulLinks()
         elif (selection == globals.goBack):
             globals.loggedIn = False
             return selection
@@ -326,19 +326,22 @@ def ShowUsefulLinks():
             + f"Press [{globals.goBack.upper()}] to log out" + '\n')
         choice = choice.lower()
 
-        if (choice == 'g'):
+        if (choice == 'g'):  # General Links
             ShowGeneralLinks()
-        elif (choice == 'b'):
+        elif (choice == 'b'):  # Browse InCollege
             ShowUnderConstruction()
-        elif (choice == 'u'):
+        elif (choice == 'u'):  # Business Solutions
             ShowUnderConstruction()
-        elif (choice == 'd'):
+        elif (choice == 'd'):  # Directories # May need changed
             ShowUnderConstruction()
-        elif (choice == 's'):
-            return
-        elif (choice == globals.goBack):
+        elif (choice == globals.goBack):  # Go back to the previous menu
             choice = ''
             return
+
+        # Go back to sign up page (second break) (need to go back twice)
+        if (choice == 's'):
+            return
+
         quitLogic()
 
 
@@ -356,25 +359,28 @@ def ShowGeneralLinks():
             + f"Press [{globals.goBack.upper()}] to log out" + '\n')
         choice = choice.lower()
 
-        if (choice == 's'):
-            return
-        elif (choice == 'h'):
+        if (choice == 'h'):  # Help Center
             print("\nWe're here to help", flush=True)
-        elif (choice == 'a'):
+        elif (choice == 'a'):  # About
             print("\nIn College: Welcome to In College, " +
                 "the world's largest college student network with many users " +
                 "in many countries and territories worldwide", flush=True)
-        elif (choice == 'p'):
+        elif (choice == 'p'):  # Press
             print("\nIn College Pressroom: Stay on top of the latest news, updates, and reports", flush=True)
-        elif (choice == 'b'):
+        elif (choice == 'b'):  # Blog
             ShowUnderConstruction()
-        elif (choice == 'c'):
+        elif (choice == 'c'):  # Careers
             ShowUnderConstruction()
-        elif (choice == 'd'):
+        elif (choice == 'd'):  # Developers
             ShowUnderConstruction()
-        elif (choice == globals.goBack):
+        elif (choice == globals.goBack):  # Go back to Useful Links
             choice == ''
             return
+
+        # Go back to sign up page (first break) (need to go back twice) (Don't reset choice)
+        if (choice == 's'):
+            return
+
         quitLogic()
 
 
