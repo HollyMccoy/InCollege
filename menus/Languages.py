@@ -15,11 +15,11 @@ def ShowMenu():
             + f"[{globals.goBack.upper()}] Return to the previous menu" + '\n\n')
         selection = selection.lower()
 
-        if (selection == "1"):
+        if (selection == "1"):  # Set the language to English
             globals.currentAccount.language = "English"
             globals.updateAccounts()
-        elif (selection == "2"):
+        elif (selection == "2"):  # Set the language to Spanish
             globals.currentAccount.language = "Spanish"
             globals.updateAccounts()
-        elif (selection == globals.goBack):
+        elif (selection == globals.goBack):  # Return to the previous menu
             return
