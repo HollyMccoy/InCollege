@@ -259,6 +259,7 @@ def ShowLoggedOutMenu():
             + "Press [C] to create an account" + '\n' \
             + "Press [F] to find someone" + '\n' \
             + "Press [W] to watch a video" + '\n' \
+            + "Press [G] for General links" + '\n' \
             + "Press [I] to show InCollege important links" + '\n' \
             + f"Press [{globals.goBack.upper()}] to quit" + '\n')
         selection = selection.lower()
@@ -276,6 +277,8 @@ def ShowLoggedOutMenu():
             time.sleep(20)
             print("Video ending...", flush=True)
             time.sleep(3)
+        elif (selection == 'g'):
+            ShowGeneralLinks()
         elif (selection == 'i'):
             ImportantLinks.ShowMenu()
         elif (selection == globals.goBack): # Break out of the inner loop
@@ -290,6 +293,7 @@ def ShowLoggedInMenu():
             + "Press [J] to look for a job" + '\n' \
             + "Press [P] to post a job" + '\n' \
             + "Press [L] to learn a new skill" + '\n' \
+            + "Press [G] for General links" + '\n' \
             + "Press [I] to show InCollege important links" + '\n' \
             + f"Press [{globals.goBack.upper()}] to log out" + '\n')
         selection = selection.lower()
@@ -304,9 +308,84 @@ def ShowLoggedInMenu():
             CreateJob()
         elif (selection == 'i'):
             ImportantLinks.ShowMenu()
+        elif (selection == 'g'):
+            ShowGeneralLinks()
         elif (selection == globals.goBack):
             globals.loggedIn = False
             return selection
+
+
+def ShowUsefulLinks():
+    global choice
+    while True:
+        choice = input(
+            "\n" + "Press [G] for General links" + '\n' \
+            + "Press [B] to Browse InCollege" + '\n' \
+            + "Press [U] for Business Solutions" + '\n' \
+            + "Press [D] for Directories" + '\n' \
+            + f"Press [{globals.goBack.upper()}] to log out" + '\n')
+        choice = choice.lower()
+
+        if (choice == 'g'):
+            ShowGeneralLinks()
+        elif (choice == 'b'):
+            ShowUnderConstruction()
+        elif (choice == 'u'):
+            ShowUnderConstruction()
+        elif (choice == 'd'):
+            ShowUnderConstruction()
+        elif (choice == 's'):
+            return
+        elif (choice == globals.goBack):
+            choice = ''
+            return
+        quitLogic()
+
+
+def ShowGeneralLinks():
+    global choice
+    while True:
+        choice = input(
+            "\n" + "Press [S] to Sign up" + '\n' \
+            + "Press [H] for the Help Center" + '\n' \
+            + "Press [A] for About" + '\n' \
+            + "Press [P] for Press" + '\n' \
+            + "Press [B] for Blog" + '\n' \
+            + "Press [C] for Careers" + '\n' \
+            + "Press [D] for Developers" + '\n' \
+            + f"Press [{globals.goBack.upper()}] to log out" + '\n')
+        choice = choice.lower()
+
+        if (choice == 's'):
+            return
+        elif (choice == 'h'):
+            print("\nWe're here to help", flush=True)
+        elif (choice == 'a'):
+            print("\nIn College: Welcome to In College, " +
+                "the world's largest college student network with many users " +
+                "in many countries and territories worldwide", flush=True)
+        elif (choice == 'p'):
+            print("\nIn College Pressroom: Stay on top of the latest news, updates, and reports", flush=True)
+        elif (choice == 'b'):
+            ShowUnderConstruction()
+        elif (choice == 'c'):
+            ShowUnderConstruction()
+        elif (choice == 'd'):
+            ShowUnderConstruction()
+        elif (choice == globals.goBack):
+            choice == ''
+            return
+        quitLogic()
+
+
+def ShowUnderConstruction():
+    print("\n" + "Under construction")
+
+
+def quitLogic():
+    global choice
+    while(choice != 'q'):
+        choice = input(f"\nPress [{globals.goBack.upper()}] to return to the previous menu:\n")
 
 
 # include function to call from CreateAccount()  that would create account (change user and pass from "NULL") then add info to some .txt file for permanent storage

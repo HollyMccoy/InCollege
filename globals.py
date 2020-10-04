@@ -1,4 +1,4 @@
-# Global variables
+# Global variables and functions
 
 
 def Initialize():
@@ -21,3 +21,12 @@ def updateAccounts():
             with open("logins.txt", "w") as text_file:
                 [print(student.Print(), file=text_file) for student in students]  # Write all accounts to the login file
                 break
+
+
+def ReturnPrompt():
+    """Prompt the user to return to the previous menu after reaching a terminal menu option."""
+    while True:
+        selection = input(
+            '\n' + f"[{goBack.upper()}] Return to the previous menu" + '\n\n').lower()
+        if selection == goBack:
+            break
