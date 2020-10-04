@@ -13,6 +13,7 @@ def ShowLoggedOutMenu():
         + "Press [C] to create an account" + '\n' \
         + "Press [F] to find someone" + '\n' \
         + "Press [W] to watch a video" + '\n' \
+        + "Press [U] for Useful Links" + '\n' \
         + f"Press [{goBack.upper()}] to quit" + '\n')
     choice = choice.lower()
 
@@ -28,6 +29,38 @@ def ShowLoggedInMenu():
         + f"Press [{goBack.upper()}] to log out" + '\n')
     choice = choice.lower()
 
+# Week 3, Logan
+def ShowUsefulLinks():
+    global choice
+    choice = input(
+        "\n" + "Press [G] for General links" + '\n' \
+        + "Press [B] to Browse InCollege" + '\n' \
+        + "Press [U] for Business Solutions" + '\n' \
+        + "Press [D] for Directories" + '\n' \
+        + f"Press [{goBack.upper()}] to log out" + '\n')
+    choice = choice.lower()
+
+def ShowGeneralLinks():
+    global choice
+    choice = input(
+        "\n" + "Press [S] to Sign up" + '\n' \
+        + "Press [H] for the Help Center" + '\n' \
+        + "Press [A] for About" + '\n' \
+        + "Press [P] for Press" + '\n' \
+        + "Press [B] for Blog" + '\n' \
+        + "Press [C] for Careers" + '\n' \
+        + "Press [D] for Developers" + '\n' \
+        + f"Press [{goBack.upper()}] to log out" + '\n')
+    choice = choice.lower()
+
+def ShowUnderConstruction():
+    print("\n" + "Under construction")
+
+def quitLogic():
+    global choice
+    while(choice != 'q'):
+        choice = input(f"\nPress [{goBack.upper()}] to return to the previous menu:\n")
+#
 
 # Redundant; saved for future reference
 """
@@ -316,10 +349,68 @@ def mainMenu():
                 time.sleep(20)
                 print("Video ending...", flush=True)
                 time.sleep(3)
+            # Useful Links
+            elif (choice == 'u'):
+                while(True):
+                    ShowUsefulLinks()
+                    # General Links
+                    if (choice == 'g'):
+                        while(True):
+                            ShowGeneralLinks()
+                            # Go back to sign up page (first break) (need to go back twice) (Don't reset choice)
+                            if (choice == 's'):
+                                break
+                            # Help Center
+                            elif (choice == 'h'):
+                                print("\nWe're here to help", flush=True)
+                            # About
+                            elif (choice == 'a'):
+                                print("\nIn College: Welcome to In College, " + 
+                                        "the world's largest college student network with many users " + 
+                                        "in many countries and territories worldwide", flush=True)
+                            # Press
+                            elif (choice == 'p'):
+                                print("\nIn College Pressroom: Stay on top of the latest news, updates, and reports", flush=True)
+                            # Blog
+                            elif (choice == 'b'):
+                                ShowUnderConstruction()
+                            # Careers
+                            elif (choice == 'c'):
+                                ShowUnderConstruction()
+                            # Developers
+                            elif (choice == 'd'):
+                                ShowUnderConstruction()
+                            # Break out of the inner loop
+                            elif (choice == goBack):
+                                choice == ''
+                                break
+                            quitLogic()
+                    # Go back to sign up page (second break) (need to go back twice)    
+                    elif (choice == 's'):
+                        break
+                    # Browse InCollege
+                    elif (choice == 'b'): # May need to change from b to br or clear choice == ""
+                        ShowUnderConstruction()
+                        
+                    # Business Solutions
+                    elif (choice == 'u'):
+                        ShowUnderConstruction()
+                        
+                    # Directories # May need changed
+                    elif (choice == 'd'):
+                        ShowUnderConstruction()
+                        
+                    # Go back    
+                    elif (choice == goBack):
+                        choice = ' '
+                        break
+                    quitLogic()
             elif (choice == goBack): # Break out of the inner loop
+                #choice = ' '
                 break
 
         if (choice == goBack): # Break out of the outer loop to exit the program
+            choice = ' '
             break
 
         #choice = 'ah'
