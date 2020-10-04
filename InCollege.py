@@ -323,7 +323,7 @@ def ShowUsefulLinks():
             + "Press [B] to Browse InCollege" + '\n' \
             + "Press [U] for Business Solutions" + '\n' \
             + "Press [D] for Directories" + '\n' \
-            + f"Press [{globals.goBack.upper()}] to log out" + '\n')
+            + f"Press [{globals.goBack.upper()}] to return to the previous menu" + '\n')
         choice = choice.lower()
 
         if (choice == 'g'):  # General Links
@@ -356,7 +356,7 @@ def ShowGeneralLinks():
             + "Press [B] for Blog" + '\n' \
             + "Press [C] for Careers" + '\n' \
             + "Press [D] for Developers" + '\n' \
-            + f"Press [{globals.goBack.upper()}] to log out" + '\n')
+            + f"Press [{globals.goBack.upper()}] to return to the previous menu" + '\n')
         choice = choice.lower()
 
         if (choice == 'h'):  # Help Center
