@@ -58,6 +58,20 @@ def ValidateUser(input):
         return False
     return True
 
+def ValidateDate(input):
+    """Check whether the date entered is in iso format"""
+    try:
+        date.fromisoformat(input)
+        return True
+    except:
+        return False
+
+def ValidateDegree(input):
+    """Check whether the user entered a valid degree"""
+    if(input == "Associate" or input == "Bachelor" or input == "Master" or input == "Doctorate"):
+        return True
+    else:
+        return False
 
 def LoadJobs():
     """Read in all jobs that are stored within file."""
@@ -159,8 +173,64 @@ def ViewProfile():
             
 def CreateProfile():
     """Process information for a new user profile"""
-    print ("Profile for ", globals.currentAccount.username)
-    ShowUnderConstruction()
+    validDate = False
+    validDegree = False
+    print ("Creating Profile for ", globals.currentAccount.username)
+    firstName = globals.currentAccount.firstname
+    lastName = globals.currentAccount.lastname
+    title = input("Enter a title for yourself (i.e. \"3rd year Computer Science Student\"): ")
+    major = ToPascal(input("Enter your intended major: "))
+    schoolName = ToPascal(input("Enter your school's name: "))
+    bio = input("Enter a brief description about yourself: ")
+    
+    experience = []
+    selection = input("Would you like to add any workplace experience? (y/n) ")
+    if selection == 'y' or selection == 'Y':
+        for i in range(0,3):
+            jobTitle = input("Enter your job title: ")
+            employer = input("Enter the name of your employer: ")
+            startDate = input("Enter the date you started working there (format YYYY-MM-DD): ")
+            
+            while not validDate:
+                if ValidateDate(startDate):
+                    validDate = True
+                else:
+                    startDate = input("Incorrect Format for Start date. Try Again (YYYY-MM-DD): ")
+            validDate = False
+            endDate = input("Enter the date you stopped working there (format YYYY-MM-DD): ")
+            
+            while not validDate:
+                if ValidateDate(endDate):
+                    validDate = True
+                else:
+                    endDate = input("Incorrect Format for End date. Try Again (YYYY-MM-DD): ")
+            location = input("Enter the location of the employer: ")
+            description = input("Enter a brief description of your job: ")
+            
+            experience.append(Experience(jobTitle, employer, date.fromisoformat(startDate), date.fromisoformat(endDate), location, description))
+            with open ("Experiences.txt","a+") as file1:
+                print("{}".format(globals.currentAccount.username + ' ' + experience[len(experience) - 1].Write()), file=file1)
+            
+            selection = input("Would you like to add any more employment history? (y/n) ")
+            if selection == 'n' or selection == 'N':
+                break
+    otherSchool = ToPascal(input("Enter the name of another school you attended: "))
+    degree = input("Enter the type of degree you went for (Associate/Bachelor/Master/Doctorate): ")
+    while not validDegree:
+        if ValidateDegree(degree):
+            validDegree = True
+        else:
+            degree = input("Please enter one of the four degrees (Associate/Bachelor/Master/Doctorate): ")
+    years = int(input("Enter the amount of years you attended: "))
+    
+    education = School(otherSchool, degree, years)
+    with open ("Education.txt","a+") as file2:
+        print("{}".format(globals.currentAccount.username + ' ' + education.Write()), file=file2)
+    globals.currentProfile = Profile(globals.currentAccount.username, firstName, lastName, title, major, schoolName, bio, experience, education)
+    globals.profiles.append(globals.currentProfile)
+    
+    with open ("Profiles.txt","a+") as file3:
+        print("{}".format(globals.currentProfile.Write()), file=file3)
     
 def CreateJob():
     """Create a new job posting."""

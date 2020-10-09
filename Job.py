@@ -37,3 +37,6 @@ class Experience:
         + "End Date: " + self.end_date.isoformat() + "\n"
         + "Location: " + self.location + "\n"
         + "Description: " + self.description + "\n")
+    
+    def Write(self):
+        return (self.title.replace(" ", "_") + ' ' + self.employer.replace(" ", "_") + ' ' + self.start_date.isoformat() + ' ' + self.end_date.isoformat() + ' ' + self.location.replace(" ", "_") + ' ' + self.description.replace(" ", "_") + '\n')
