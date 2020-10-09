@@ -1,10 +1,15 @@
 # include User.py
-from Job import Job
+from Job import Job, Experience
 from User import User
+from Profile import Profile
+from School import School
 from menus import ImportantLinks
 import globals
 import sys, time
+from datetime import date
 
+def ToPascal(s):
+    return (''.join(x for x in s.title() if not x.isspace()))
 
 def SuccessStory():
     """Print out a student success story."""
@@ -88,7 +93,75 @@ def LoadAccounts():
     # userPass = userPass.split()
     # print(userPass)
 
+def LoadProfiles():
+    """Read in all profiles that are stored within file,
+    as well as the associated employment and education information
+    from their respective files."""
+    
+    globals.profiles = []
+    experience = []
+    education = None
+    
+    profiles = open('Profiles.txt', 'r')
+    profileList = profiles.readlines()
+    
+    expFile = open('Experiences.txt', 'r')
+    expList = expFile.readlines()
+    
+    schoolFile = open('Education.txt', 'r')
+    schoolList = schoolFile.readlines()
+    
+    for p in profileList:
+        if len(p.split()) == 7:     # Determine if a profile has the correct number of parameters
+            pInfo = p.split()
+            
+            for e in expList:
+                if len(e.split()) == 7:
+                    eInfo = e.split()
+                    if eInfo[0] == pInfo[0]: #Check if the profile username matches the experience username
+                        experience.append(Experience(eInfo[1].replace("_", " "),
+                        eInfo[2].replace("_", " "),
+                        date.fromisoformat(eInfo[3]),
+                        date.fromisoformat(eInfo[4]),
+                        eInfo[5].replace("_", " "),
+                        eInfo[6].replace("_", " "),))
+                        
+                    if len(experience) >= 3:
+                        break
+            
+            for s in schoolList:
+                if len(s.split()) == 4:
+                    sInfo = s.split()
+                    if sInfo[0] == pInfo[0]: #Check if the profile username matches the school username
+                        education = School(sInfo[1],
+                        sInfo[2],
+                        sInfo[3])
+                        
+                        break
+            
+            globals.profiles.append(Profile(pInfo[0],
+            pInfo[1],
+            pInfo[2],
+            pInfo[3].replace("_", " "),
+            pInfo[4],
+            pInfo[5],
+            pInfo[6].replace("_", " "),
+            experience,
+            education))
 
+def ViewProfile():
+    if (globals.currentProfile == None):
+        selection = input("Your profile is empty, would you like to fill it out? (y/n) ")
+        if (selection == 'y' or selection == 'Y'):
+            CreateProfile()
+    else:
+        print(globals.currentProfile.Print())
+            
+def CreateProfile():
+    """Process information for a new user profile"""
+    print ("Profile for ", globals.currentAccount.username)
+    ShowUnderConstruction()
+    
 def CreateJob():
     """Create a new job posting."""
     if (len(jobs) >= 5):
@@ -173,6 +246,7 @@ def LoginToAccount():
                 choice = 'ah'
                 globals.loggedIn = True
                 globals.currentAccount = account
+                globals.currentProfile = FindProfile(globals.currentAccount.username)
                 return
 
         # Display an error message if the login fails
@@ -190,6 +264,12 @@ def LoginToAccount():
             else:
                 continue
 
+def FindProfile(user):
+    
+    for p in globals.profiles:
+        if p.username == user:
+            return p
+    return None
 
 def FindContact():
     """Allow the user to search for someone by specifying a first and last name."""
@@ -289,7 +369,8 @@ def ShowLoggedInMenu():
     """Present menu options for when the user is logged in."""
     while True:
         selection = input(
-            "\n" + "Press [F] to find someone" + '\n' \
+            "\n" + "Press [R] to view your profile" + '\n' \
+            + "Press [F] to find someone" + '\n' \
             + "Press [J] to look for a job" + '\n' \
             + "Press [P] to post a job" + '\n' \
             + "Press [L] to learn a new skill" + '\n' \
@@ -297,8 +378,10 @@ def ShowLoggedInMenu():
             + "Press [I] to show InCollege important links" + '\n' \
             + f"Press [{globals.goBack.upper()}] to log out" + '\n')
         selection = selection.lower()
-
-        if (selection == 'f'):
+        
+        if (selection == 'r'):
+            ViewProfile()
+        elif (selection == 'f'):
             FindContact()
         elif (selection == 'j'):
             JobSearch()
@@ -405,6 +488,8 @@ def mainMenu():
     global logins
     global choice
     global jobs
+    
+    globals.currentProfile = None
     logins = open('Logins.txt', 'a+')
     choice = 'd'
     jobs = []
@@ -412,6 +497,7 @@ def mainMenu():
     LoadAccounts()
     # this is where we at first should intercept and load text file accounts
     SuccessStory()
+    LoadProfiles()
 
     while True:  # Logged in and logged out menu loop
         while not globals.loggedIn:
