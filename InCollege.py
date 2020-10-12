@@ -84,7 +84,6 @@ def LoadJobs():
         details = job.split()
         jobs.append(Job(details[0], details[1], details[2], details[3], details[4]))
 
-
 def LoadAccounts():
     """Read in all accounts that are stored within file."""
     logins = open('Logins.txt', 'r')
@@ -106,6 +105,50 @@ def LoadAccounts():
             break
     # userPass = userPass.split()
     # print(userPass)
+
+def LoadFriendsList():
+    #friendsList = []
+    with open("Friends.txt", "r") as friendsListFile:
+        while True:
+            friendsList = friendsListFile.readline()
+            if friendsList:
+                friendsList = friendsList.split()
+                friendsLists.append(friendsList)
+            else:
+                break
+
+def ViewFriendsList():
+    firstIteration = True
+    friendInput = ""
+    num = 1
+    user = str(globals.currentAccount.username)
+    for friendsList in friendsLists:
+        if (friendsList[0] == str(user)):
+            for friend in friendsList:
+                if(firstIteration):
+                    firstIteration = False
+                    print(f'{friend}s Friends: ')
+
+                else: 
+                    print(f"Press [{num}] to view {friend}s profile")
+                    num += 1
+
+            friendInput = input("Or Press [Q] to quit: ")
+
+            if friendInput.isnumeric():
+                ViewUserProfile(friendsList[int(friendInput)])
+            break
+    
+
+def ViewUserProfile(name):
+    
+    for profile in globals.profiles:
+        if profile.username == name:
+            print(f"{name}s Profile: \n")
+            print(profile.Print())
+            break
+
+    
 
 def LoadProfiles():
     """Read in all profiles that are stored within file,
@@ -365,12 +408,25 @@ def FindContact():
         if firstName == name.get('firstName') and lastName == name.get('lastName'):
             found = True
             print("\n" + "They are a part of the InCollege system.")
+            # Prompt the user to send a friend request
+            sendRequestChar = input(f"\nWould you like to send {firstName} a friend request? Press [Y] or [N] ")
+            while(sendRequestChar.upper() != 'Y' and sendRequestChar.upper() != 'N'):
+                sendRequestChar = input("Please enter [Y] to send a friend request or [N] to exit ")
+            
+            # Send Friend Request
+            if(sendRequestChar.upper() == 'Y' and globals.loggedIn):
+                #Not Written yet
+                #SendFriendRequest()
+                ShowUnderConstruction()
             break
     if not found:
         print("\n" + "They are not yet a part of the InCollege system.")
 
     if found and not globals.loggedIn:
         print("Join your friends today by signing in or creating an account.")
+
+def SendFriendRequest():
+    ShowUnderConstruction()
 
 def JobSearch():
     """NOT YET IMPLEMENTED: Allow the user to search for a job."""
@@ -446,6 +502,7 @@ def ShowLoggedInMenu():
             + "Press [L] to learn a new skill" + '\n' \
             + "Press [U] for Useful Links" + '\n' \
             + "Press [I] to show InCollege important links" + '\n' \
+            + "Press [V] to view friends list" + '\n' \
             + f"Press [{globals.goBack.upper()}] to log out" + '\n')
         selection = selection.lower()
         
@@ -463,6 +520,8 @@ def ShowLoggedInMenu():
             ImportantLinks.ShowMenu()
         elif (selection == 'u'):
             ShowUsefulLinks()
+        elif (selection == 'v'): # View Friends List
+            ViewFriendsList()
         elif (selection == globals.goBack):
             globals.loggedIn = False
             return selection
@@ -558,16 +617,19 @@ def mainMenu():
     global logins
     global choice
     global jobs
+    global friendsLists
     
     globals.currentProfile = None
     logins = open('Logins.txt', 'a+')
     choice = 'd'
     jobs = []
+    friendsLists = []
 
     LoadAccounts()
     # this is where we at first should intercept and load text file accounts
     SuccessStory()
     LoadProfiles()
+    LoadFriendsList()
 
     while True:  # Logged in and logged out menu loop
         while not globals.loggedIn:
