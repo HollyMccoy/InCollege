@@ -384,6 +384,39 @@ def FindProfile(user):
             return p
     return None
 
+def SearchProfiles():
+    """Return a list of profiles based on specified lastname, major, or college"""
+    result = []
+    lastname = input('Enter last name (or leave blank): ')
+    major = input('Enter major (or leave blank): ')
+    college = input('Enter the school name (or leave blank): ')
+    for p in globals.profiles:
+        if lastname.upper() in p.lastName.upper() and ToPascal(major).upper() in p.major.upper() and ToPascal(college).upper() in p.schoolName.upper():
+            result.append(p)
+    
+    if len(result) == 0:
+        print("No results found.")
+    else:
+        r = 0;
+        while r < len(result):
+            print('[' + str(r+1) + '.]' 
+            + result[r].firstName + ' ' 
+            + result[r].lastName + '\t' 
+            + result[r].major + '\t' 
+            + result[r].schoolName)
+            
+            r = r+1
+        
+        selection = input("Would you like to send a request to any of these people? (y/n) ")
+        if selection.upper() == 'Y':
+            selection = input('Enter the number of the person you would like to send a request to (or 0 if you wish to exit): ')
+            if (int(selection) <= len(result)):
+                print('Sent friend request to ' + result[r-1].firstName + ' ' + result[r-1].lastName + " (under construction)")
+            else:
+                while (selection > len(result)):
+                    selection = input("Number not on the list, please try again (or 0 to exit): ")
+                    print('Sent friend request to ' + result[r-1].firstName + ' ' + result[r-1].lastName + " (under construction)")
+
 def FindContact():
     """Allow the user to search for someone by specifying a first and last name."""
     names = list()
@@ -497,6 +530,7 @@ def ShowLoggedInMenu():
         selection = input(
             "\n" + "Press [R] to view your profile" + '\n' \
             + "Press [F] to find someone" + '\n' \
+            + "Press [S] to search profiles" + '\n' \
             + "Press [J] to look for a job" + '\n' \
             + "Press [P] to post a job" + '\n' \
             + "Press [L] to learn a new skill" + '\n' \
@@ -510,6 +544,8 @@ def ShowLoggedInMenu():
             ViewProfile()
         elif (selection == 'f'):
             FindContact()
+        elif (selection == 's'):
+            SearchProfiles()
         elif (selection == 'j'):
             JobSearch()
         elif (selection == 'l'):
