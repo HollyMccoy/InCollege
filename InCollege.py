@@ -277,7 +277,7 @@ def CreateProfile():
     
 def CreateJob():
     """Create a new job posting."""
-    if (len(jobs) >= 5):
+    if (len(jobs) >= 10):
       print('\n' + 'All permitted job postings have been created, please come back later')
       return
     title = input("Enter the job title: ")
@@ -296,7 +296,7 @@ def CreateAccount():
     validUser = False
     validPass = False
     global choice
-    if (len(globals.students) >= 5):
+    if (len(globals.students) >= 10):
         print('\n' + 'All permitted accounts have been created, please come back later')
         return
 
