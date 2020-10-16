@@ -129,7 +129,19 @@ def FindNotification():
 
 def SendRequest(secondUser):
     """Sends a request from the current user to secondUser"""
-    ShowUnderConstruction()
+    firstUser = str(globals.currentAccount.username)
+    for r in requests:
+        if (r[0] == firstUser and r[1] == secondUser):
+            print("Error: You have made this request already")
+            return False
+    requests.remove(r)
+    r[0].append(firstUser)
+    r[1].append(secondUser)
+    requests.append(r)
+    UpdateRequests()
+    print('Sent friend request to ' + secondUser + " (under construction)")
+    return True
+
 
 def DeleteRequest(secondUser):
     """Removes a friend request"""
@@ -511,16 +523,17 @@ def SearchProfiles():
             + result[r].schoolName)
             
             r = r+1
-        
+
+        fullName = result[r - 1].firstName + result[r - 1].lastName
         selection = input("Would you like to send a request to any of these people? (y/n) ")
         if selection.upper() == 'Y':
             selection = input('Enter the number of the person you would like to send a request to (or 0 if you wish to exit): ')
             if (int(selection) <= len(result)):
-                print('Sent friend request to ' + result[r-1].firstName + ' ' + result[r-1].lastName + " (under construction)")
+                SendRequest(fullName)
             else:
                 while (selection > len(result)):
                     selection = input("Number not on the list, please try again (or 0 to exit): ")
-                    print('Sent friend request to ' + result[r-1].firstName + ' ' + result[r-1].lastName + " (under construction)")
+                    SendRequest(fullName)
 
 def FindContact():
     """Allow the user to search for someone by specifying a first and last name."""
@@ -562,9 +575,6 @@ def FindContact():
 
     if found and not globals.loggedIn:
         print("Join your friends today by signing in or creating an account.")
-
-def SendFriendRequest():
-    ShowUnderConstruction()
 
 def JobSearch():
     """NOT YET IMPLEMENTED: Allow the user to search for a job."""
