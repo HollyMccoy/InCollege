@@ -201,18 +201,31 @@ def ViewFriendsList():
                     print(f'{friend}s Friends: ')
 
                 else: 
-                    print(f"Press [{num}] to view {friend}s profile")
+                    print(f"Press [{num}] to view {friend}s menu")
                     num += 1
 
-            friendInput = input("Or Press [Q] to quit or [R] to remove: ")
+            friendInput = input("Make a selection: ")
 
             if friendInput.isnumeric():
-                ViewUserProfile(friendsList[int(friendInput)])
-            elif (friendInput == 'r'):
-                whichFriend = input("Which friend do you want to remove?: ")
-                DeleteFriends(friendsList[int(whichFriend)])
+                FriendMenu(friendsList[int(friendInput)])
             break
+
+def FriendMenu(friend):
+    """Displays options for selected friend from list, only displays profiles from those who have it"""
+    prof_found = FindProfile(friend)
+    if prof_found != None:
+        print(f"Press [P] to view {friend}\'s profile")
+    selection = input(f"Press [R] to remove {friend} from your friends list\nPress [Q] to exit\nMake a selection: ")
     
+    if selection.lower() == 'p' and prof_found != None:
+        ViewUserProfile(friend)
+    elif selection.lower() == 'r':
+        selection = input(f"Are you sure you want to delete {friend} from your list? (y/n)")
+        if selection.lower() == 'y':
+            DeleteFriends(friend)
+    else:
+        pass
+  
 def AddFriends(secondUser):
     """Creates a connection between two friends"""
     firstUser = str(globals.currentAccount.username)
@@ -668,7 +681,7 @@ def ShowLoggedInMenu():
             + "Press [U] for Useful Links" + '\n' \
             + "Press [I] to show InCollege important links" + '\n' \
             + "Press [V] to view friends list" + '\n' \
-            + "Press [Q] to check your pending friend requests." + '\n' \
+            + "Press [E] to check your pending friend requests." + '\n' \
             + f"Press [{globals.goBack.upper()}] to log out" + '\n')
         selection = selection.lower()
         
@@ -690,7 +703,7 @@ def ShowLoggedInMenu():
             ShowUsefulLinks()
         elif (selection == 'v'): # View Friends List
             ViewFriendsList()
-        elif (selection == 'q'):
+        elif (selection == 'e'):
             ViewRequests()
         elif (selection == globals.goBack):
             globals.loggedIn = False
