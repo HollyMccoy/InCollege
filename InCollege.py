@@ -116,6 +116,13 @@ def LoadRequests():
             users = r.split()
             requests.append(users)
 
+def ViewRequests():
+    user = str(globals.currentAccount.username)
+    print("You have sent a request to these users: ")
+    for r in requests:
+        if r[0] == user:
+            print(r[1])
+
 def FindNotification():
     """Informs the user of their most recent friend request, if any"""
     user = globals.currentAccount.username
@@ -164,6 +171,12 @@ def UpdateRequests():
             newList = newList + r[0] + ' ' + r[1] + '\n'
         print("{}".format(newList), file=requestFile)
 
+def CreateFriendsList(newUser):
+    with open("Friends.txt", "r") as friendsListFile:
+        while True:
+            newList = newUser
+            friendsLists.append(newList)
+
 def LoadFriendsList():
     #friendsList = []
     with open("Friends.txt", "r") as friendsListFile:
@@ -191,10 +204,13 @@ def ViewFriendsList():
                     print(f"Press [{num}] to view {friend}s profile")
                     num += 1
 
-            friendInput = input("Or Press [Q] to quit: ")
+            friendInput = input("Or Press [Q] to quit or [R] to remove: ")
 
             if friendInput.isnumeric():
                 ViewUserProfile(friendsList[int(friendInput)])
+            elif (friendInput == 'r'):
+                whichFriend = input("Which friend do you want to remove?: ")
+                DeleteFriends(friendsList[int(whichFriend)])
             break
     
 def AddFriends(secondUser):
@@ -452,7 +468,7 @@ def CreateAccount():
         language = "English"))
     with open("Logins.txt", "a+") as text_file:
         print("{}".format(globals.students[len(globals.students) - 1].Print()), file=text_file)
-
+    CreateFriendsList(inputUser)
     print('Account successfully created!')
 
     ## logins.truncate(0)   this is the erase file function in case accounts must be rewritten
@@ -652,6 +668,7 @@ def ShowLoggedInMenu():
             + "Press [U] for Useful Links" + '\n' \
             + "Press [I] to show InCollege important links" + '\n' \
             + "Press [V] to view friends list" + '\n' \
+            + "Press [Q] to check your pending friend requests." + '\n' \
             + f"Press [{globals.goBack.upper()}] to log out" + '\n')
         selection = selection.lower()
         
@@ -673,6 +690,8 @@ def ShowLoggedInMenu():
             ShowUsefulLinks()
         elif (selection == 'v'): # View Friends List
             ViewFriendsList()
+        elif (selection == 'q'):
+            ViewRequests()
         elif (selection == globals.goBack):
             globals.loggedIn = False
             return selection
