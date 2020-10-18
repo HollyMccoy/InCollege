@@ -106,6 +106,77 @@ def LoadAccounts():
     # userPass = userPass.split()
     # print(userPass)
 
+def LoadRequests():
+    """Read in all accounts that are stored within file."""
+    requestFile = open('Requests.txt', 'r')
+    requestList = requestFile.readlines()
+    
+    for r in requestList:
+        if len(r.split()) == 2:
+            users = r.split()
+            requests.append(users)
+
+def ViewRequests():
+    user = str(globals.currentAccount.username)
+    print("You have sent a request to these users: ")
+    for r in requests:
+        if r[0] == user:
+            print(r[1])
+
+def FindNotification():
+    """Informs the user of their most recent friend request, if any"""
+    user = globals.currentAccount.username
+    for r in requests:
+        if r[0] == user:
+            selection = input("You have a friend request from " + r[1] + ". Do you accept? (y/n) ")
+            if selection.lower() == 'y':
+                AddFriends(r[1])
+        else:
+            print(r[0] + " does not equal " + user)
+
+def SendRequest(secondUser):
+    """Sends a request from the current user to secondUser"""
+    firstUser = str(globals.currentAccount.username)
+    for r in requests:
+        if (r[0] == firstUser and r[1] == secondUser):
+            print("Error: You have made this request already")
+            return False
+    requests.remove(r)
+    r[0].append(firstUser)
+    r[1].append(secondUser)
+    requests.append(r)
+    UpdateRequests()
+    print('Sent friend request to ' + secondUser + " (under construction)")
+    return True
+
+
+def DeleteRequest(secondUser):
+    """Removes a friend request"""
+    firstUser = str(globals.currentAccount.username)
+    for r in requests:
+        if (r[0] == firstUser and r[1] == secondUser):
+            break
+    if not (r[0] == firstUser and r[1] == secondUser):
+        print("Error: Request not found")
+        return False #for testing
+    requests.remove(r)    
+    UpdateRequests()
+    return True #for testing
+
+def UpdateRequests():
+    """Overwrites Requests.txt to the most current state"""
+    newList = ""
+    with open("Requests.txt", "w") as requestFile:
+        for r in requests:
+            newList = newList + r[0] + ' ' + r[1] + '\n'
+        print("{}".format(newList), file=requestFile)
+
+def CreateFriendsList(newUser):
+    with open("Friends.txt", "w") as friendsListFile:
+        while True:
+            newList = newUser
+            friendsLists.append(newList)
+
 def LoadFriendsList():
     #friendsList = []
     with open("Friends.txt", "r") as friendsListFile:
@@ -133,15 +204,78 @@ def ViewFriendsList():
                     print(f"Press [{num}] to view {friend}s profile")
                     num += 1
 
-            friendInput = input("Or Press [Q] to quit: ")
+            friendInput = input("Or Press [Q] to quit or [R] to remove: ")
 
             if friendInput.isnumeric():
                 ViewUserProfile(friendsList[int(friendInput)])
+            elif (friendInput == 'r'):
+                whichFriend = input("Which friend do you want to remove?: ")
+                DeleteFriends(friendsList[int(whichFriend)])
             break
     
+def AddFriends(secondUser):
+    """Creates a connection between two friends"""
+    firstUser = str(globals.currentAccount.username)
+    for friendList1 in friendsLists:
+        if (friendList1[0] == firstUser):
+            break
+        
+    for friendList2 in friendsLists:
+        if (friendList2[0] == secondUser):
+            break
+    if secondUser not in friendList2:
+        print("Error: second person not found")
+        return False #for testing
+    elif secondUser in friendList1:
+        print("Error: already friends")
+        return False #for testing
+    friendsLists.remove(friendList1)
+    friendsLists.remove(friendList2)
+    friendList1.append(secondUser)
+    friendList2.append(firstUser)
+    friendsLists.append(friendList1)
+    friendsLists.append(friendList2)
+    UpdateFriendsList()
+    DeleteRequest(secondUser)
+    return True #for testing
+    
+def DeleteFriends(secondUser):
+    """Removes a connection between two friends"""
+    firstUser = str(globals.currentAccount.username)
+    for friendList1 in friendsLists:
+        if (friendList1[0] == firstUser):
+            break
+        
+    for friendList2 in friendsLists:
+        if (friendList2[0] == secondUser):
+            break
+    
+    if secondUser not in friendList2:
+        print("Error: second person not found")
+        return False #for testing
+    elif secondUser not in friendList1:
+        print("Error: already not friends")
+        return False #for testing
+    friendsLists.remove(friendList1)
+    friendsLists.remove(friendList2)
+    friendList1.remove(secondUser)
+    friendList2.remove(firstUser)
+    friendsLists.append(friendList1)
+    friendsLists.append(friendList2)
+    UpdateFriendsList()
+    return True #for testing
+
+def UpdateFriendsList():
+    """Overwrites Friends.txt to the most current state"""
+    newList = ""
+    with open("Friends.txt", "w") as friendsListFile:
+        for friendsList in friendsLists:
+            for f in friendsList:
+                newList = newList + f + ' '
+            newList += '\n'
+        print("{}".format(newList), file=friendsListFile)
 
 def ViewUserProfile(name):
-    
     for profile in globals.profiles:
         if profile.username == name:
             print(f"{name}s Profile: \n")
@@ -277,7 +411,7 @@ def CreateProfile():
     
 def CreateJob():
     """Create a new job posting."""
-    if (len(jobs) >= 5):
+    if (len(jobs) >= 10):
       print('\n' + 'All permitted job postings have been created, please come back later')
       return
     title = input("Enter the job title: ")
@@ -296,7 +430,7 @@ def CreateAccount():
     validUser = False
     validPass = False
     global choice
-    if (len(globals.students) >= 5):
+    if (len(globals.students) >= 10):
         print('\n' + 'All permitted accounts have been created, please come back later')
         return
 
@@ -334,11 +468,10 @@ def CreateAccount():
         language = "English"))
     with open("Logins.txt", "a+") as text_file:
         print("{}".format(globals.students[len(globals.students) - 1].Print()), file=text_file)
-
+    CreateFriendsList(inputUser)
     print('Account successfully created!')
 
     ## logins.truncate(0)   this is the erase file function in case accounts must be rewritten
-
 
 def LoginToAccount():
     """Attempt to log the user into an account."""
@@ -384,6 +517,40 @@ def FindProfile(user):
             return p
     return None
 
+def SearchProfiles():
+    """Return a list of profiles based on specified lastname, major, or college"""
+    result = []
+    lastname = input('Enter last name (or leave blank): ')
+    major = input('Enter major (or leave blank): ')
+    college = input('Enter the school name (or leave blank): ')
+    for p in globals.profiles:
+        if lastname.upper() in p.lastName.upper() and ToPascal(major).upper() in p.major.upper() and ToPascal(college).upper() in p.schoolName.upper():
+            result.append(p)
+    
+    if len(result) == 0:
+        print("No results found.")
+    else:
+        r = 0;
+        while r < len(result):
+            print('[' + str(r+1) + '.]' 
+            + result[r].firstName + ' ' 
+            + result[r].lastName + '\t' 
+            + result[r].major + '\t' 
+            + result[r].schoolName)
+            
+            r = r+1
+
+        fullName = result[r - 1].firstName + result[r - 1].lastName
+        selection = input("Would you like to send a request to any of these people? (y/n) ")
+        if selection.upper() == 'Y':
+            selection = input('Enter the number of the person you would like to send a request to (or 0 if you wish to exit): ')
+            if (int(selection) <= len(result)):
+                SendRequest(fullName)
+            else:
+                while (selection > len(result)):
+                    selection = input("Number not on the list, please try again (or 0 to exit): ")
+                    SendRequest(fullName)
+
 def FindContact():
     """Allow the user to search for someone by specifying a first and last name."""
     names = list()
@@ -424,9 +591,6 @@ def FindContact():
 
     if found and not globals.loggedIn:
         print("Join your friends today by signing in or creating an account.")
-
-def SendFriendRequest():
-    ShowUnderConstruction()
 
 def JobSearch():
     """NOT YET IMPLEMENTED: Allow the user to search for a job."""
@@ -497,12 +661,14 @@ def ShowLoggedInMenu():
         selection = input(
             "\n" + "Press [R] to view your profile" + '\n' \
             + "Press [F] to find someone" + '\n' \
+            + "Press [S] to search profiles" + '\n' \
             + "Press [J] to look for a job" + '\n' \
             + "Press [P] to post a job" + '\n' \
             + "Press [L] to learn a new skill" + '\n' \
             + "Press [U] for Useful Links" + '\n' \
             + "Press [I] to show InCollege important links" + '\n' \
             + "Press [V] to view friends list" + '\n' \
+            + "Press [Q] to check your pending friend requests." + '\n' \
             + f"Press [{globals.goBack.upper()}] to log out" + '\n')
         selection = selection.lower()
         
@@ -510,6 +676,8 @@ def ShowLoggedInMenu():
             ViewProfile()
         elif (selection == 'f'):
             FindContact()
+        elif (selection == 's'):
+            SearchProfiles()
         elif (selection == 'j'):
             JobSearch()
         elif (selection == 'l'):
@@ -522,6 +690,8 @@ def ShowLoggedInMenu():
             ShowUsefulLinks()
         elif (selection == 'v'): # View Friends List
             ViewFriendsList()
+        elif (selection == 'q'):
+            ViewRequests()
         elif (selection == globals.goBack):
             globals.loggedIn = False
             return selection
@@ -618,18 +788,21 @@ def mainMenu():
     global choice
     global jobs
     global friendsLists
+    global requests
     
     globals.currentProfile = None
     logins = open('Logins.txt', 'a+')
     choice = 'd'
     jobs = []
     friendsLists = []
-
+    requests = []
+    
     LoadAccounts()
     # this is where we at first should intercept and load text file accounts
     SuccessStory()
     LoadProfiles()
     LoadFriendsList()
+    LoadRequests()
 
     while True:  # Logged in and logged out menu loop
         while not globals.loggedIn:
@@ -640,6 +813,7 @@ def mainMenu():
             break
 
         while globals.loggedIn:
+            FindNotification()
             choice = ShowLoggedInMenu()
             if (choice == globals.goBack):  # Break out and go back to the logged out menu
                 break
