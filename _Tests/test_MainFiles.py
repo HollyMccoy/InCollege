@@ -1,7 +1,9 @@
 # Unit tests for main directory files
 
 from os import path
+from _Tests.testGlobals import checkIfEmpty
 from _Tests.testGlobals import checkParamLength
+
 
 class TestMainFiles:
     """Check for files in the root directory."""
@@ -23,6 +25,9 @@ class TestMainFiles:
     def test_ProfilesFile(self):
         assert path.exists("Profiles.txt")
 
+    def test_RequestsFile(self):
+        assert path.exists("Requests.txt")
+
     def test_SkillsFile(self):
         assert path.exists("Skills.txt")
 
@@ -32,25 +37,26 @@ class TestMainFiles:
 
 class TestMainFilesContent:
     """Check each input file for the appropriate number of file parameters."""
-
-    # Ignore the following files due to having a variable number of parameters:
-    '''
-    Friends.txt
-    Skills.txt
-    SuccessStory.txt
-    '''
-
     def test_EducationFile(self):
-        checkParamLength("Education.txt", 4)
+        assert checkParamLength("Education.txt", 4)
 
     def test_ExperiencesFile(self):
-        checkParamLength("Experiences.txt", 7)
+        assert checkParamLength("Experiences.txt", 7)
+
+    def test_FriendsFile(self):
+        assert checkIfEmpty("Friends.txt")
 
     def test_JobsFile(self):
-        checkParamLength("Jobs.txt", 5)
+        assert checkParamLength("Jobs.txt", 5)
 
     def test_LoginsFile(self):
-        checkParamLength("Logins.txt", 8)
+        assert checkParamLength("Logins.txt", 8)
 
     def test_ProfilesFile(self):
-        checkParamLength("Profiles.txt", 7)
+        assert checkParamLength("Profiles.txt", 7)
+
+    def test_SkillsFile(self):
+        assert checkIfEmpty("Skills.txt")
+
+    def test_SuccessStoryFile(self):
+        assert checkIfEmpty("SuccessStory.txt")

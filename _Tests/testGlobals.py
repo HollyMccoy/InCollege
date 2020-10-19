@@ -11,4 +11,17 @@ def checkParamLength(fileName, numParams):
                 continue
             elif len(params) != numParams:
                 print("Incorrect number of parameters found in " + fileName)
-            assert len(params) == numParams
+            return len(params) == numParams
+
+
+def checkIfEmpty(fileName):
+    """Check if a specified file is empty"""
+    with open(fileName) as file:
+        while True:
+            line = file.readline()
+            if not line:
+                return False
+            elif line == "\n":
+                return False
+            else:
+                return True

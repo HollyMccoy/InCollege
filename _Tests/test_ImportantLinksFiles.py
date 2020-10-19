@@ -1,14 +1,11 @@
 # Unit tests for "important links" subdirectory files
-
 from os import path
-
 
 fileDir = "docs\\ImportantLinks\\"
 
 
 class TestImportantLinksFiles:
     '''Check for files used by the "important links" submenus.'''
-
     def test_ImportantLinksPath(self):
         assert path.exists(fileDir)
 
