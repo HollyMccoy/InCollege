@@ -1,2 +1,3 @@
 QWERT Password!1 Donuts McGee True True True English
 ASDF Password!1 Bacon McMunch True True True English
+UIOP Password!1 Cheesy McMuffin True True True English
