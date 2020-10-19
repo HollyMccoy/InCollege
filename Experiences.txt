@@ -1,2 +1,3 @@
 QWERT Prep_Cook Applebees 2015-04-20 2017-07-28 Palm_Harbor Chopped_vegetables_and_stuff
-QWERT Service_Technician Widgets_Inc. 2017-10-11 2020-08-21 Palm_Harbor Assisted_clients_over_the_phone_with_technical_concernsASDF Cashier Food_Lion 2015-02-02 2019-03-04 Charlottesville Bagging_groceries_and_making_change
+QWERT Service_Technician Widgets_Inc. 2017-10-11 2020-08-21 Palm_Harbor Assisted_clients_over_the_phone_with_technical_concerns
+ASDF Cashier Food_Lion 2015-02-02 2019-03-04 Charlottesville Bagging_groceries_and_making_change
