@@ -172,7 +172,7 @@ def UpdateRequests():
         print("{}".format(newList), file=requestFile)
 
 def CreateFriendsList(newUser):
-    with open("Friends.txt", "r") as friendsListFile:
+    with open("Friends.txt", "w") as friendsListFile:
         while True:
             newList = newUser
             friendsLists.append(newList)
