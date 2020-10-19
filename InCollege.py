@@ -224,7 +224,6 @@ def FriendMenu(friend):
             DeleteFriends(friend)
     else:
         pass
-  
 def AddFriends(secondUser):
     """Creates a connection between two friends"""
     firstUser = str(globals.currentAccount.username)
