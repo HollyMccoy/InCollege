@@ -4,13 +4,13 @@ from User import User
 from Profile import Profile
 from School import School
 from menus import ImportantLinks
+from Application import Application
 import globals
 import sys, time
 from datetime import date
 
 def ToPascal(s):
     return (''.join(x for x in s.title() if not x.isspace()))
-
 def SuccessStory():
     """Print out a student success story."""
     print()
@@ -20,8 +20,7 @@ def SuccessStory():
         print(line)
         line = Story.readline().rstrip()
     print()
-
-
+    # Validation methods
 def ValidatePassword(input):
     """Check if a password meets security criteria."""
     num = False
@@ -47,8 +46,6 @@ def ValidatePassword(input):
                 if capital:
                     return True
     return False
-
-
 def ValidateUser(input):
     """Check whether the username is unique and contains only alpha-numeric characters."""
     for account in globals.students:
@@ -57,7 +54,6 @@ def ValidateUser(input):
     if (input.isalnum() == False):
         return False
     return True
-
 def ValidateDate(input):
     """Check whether the date entered is in iso format"""
     try:
@@ -65,25 +61,13 @@ def ValidateDate(input):
         return True
     except:
         return False
-
 def ValidateDegree(input):
     """Check whether the user entered a valid degree"""
     if(input == "Associate" or input == "Bachelor" or input == "Master" or input == "Doctorate"):
         return True
     else:
         return False
-
-def LoadJobs():
-    """Read in all jobs that are stored within file."""
-    listings = open('Jobs.txt', 'r')
-    # each line in job.txt is a listing for a job opening.
-    # openings = all the lines in job.txt which is stored in listings
-    Openings = listings.readlines()
-
-    for job in Openings:
-        details = job.split()
-        jobs.append(Job(details[0], details[1], details[2], details[3], details[4]))
-
+    # start/loading methods
 def LoadAccounts():
     """Read in all accounts that are stored within file."""
     logins = open('Logins.txt', 'r')
@@ -105,7 +89,6 @@ def LoadAccounts():
             break
     # userPass = userPass.split()
     # print(userPass)
-
 def LoadRequests():
     """Read in all accounts that are stored within file."""
     requestFile = open('Requests.txt', 'r')
@@ -115,25 +98,61 @@ def LoadRequests():
         if len(r.split()) == 2:
             users = r.split()
             requests.append(users)
+def LoadJobs():
+    """Read in all jobs that are stored within file."""
+    listings = open('Jobs.txt', 'r')
+    # each line in job.txt is a listing for a job opening.
+    # openings = all the lines in job.txt which is stored in listings
+    Openings = listings.readlines()
+    for job in Openings:
+        details = job.split()
+        globals.jobs.append(Job(details[0], details[1], details[2], details[3], details[4]))
+def LoadFriendsList():
+    #friendsList = []
+    with open("Friends.txt", "r") as friendsListFile:
+        while True:
+            friendsList = friendsListFile.readline()
+            if friendsList:
+                friendsList = friendsList.split()
+                friendsLists.append(friendsList)
+            else:
+                break
+def LoadMyApplications():
+    applicationsFile = open('Applications.txt', 'r')
+    applicationsList = applicationsFile.readlines()
 
+# check every 9 lines (9 lines are takenup by each application)
+    # if username matches and the full description matches then add to currently logged in list
+    if (len(applicationsList)<8):
+        return
+    for a in range(len(applicationsList)%9 +1):
+        i=0
+        if(applicationsList[a*9].strip() != globals.currentAccount.username ):
+            continue
+        while(i<len(globals.jobs)):
+            if (globals.jobs[i].description.strip() == applicationsList[a*9 + 2].strip() ):
+                globals.myApplications.append(Application(applicationsList[a*9 + 6].strip(), applicationsList[a*9 + 7].strip(), applicationsList[a*9 + 8].strip(),globals.jobs[i], globals.currentAccount.username))
+
+            i+=1
+
+
+# Friend list features
 def ViewRequests():
     user = str(globals.currentAccount.username)
     print("You have sent a request to these users: ")
     for r in requests:
         if r[0] == user:
             print(r[1])
-
 def FindNotification():
     """Informs the user of their most recent friend request, if any"""
     user = globals.currentAccount.username
     for r in requests:
         if r[0] == user:
-            selection = input("You have a friend request from " + r[1] + ". Do you accept? (y/n) ")
+            selection = input("You have a friend request from " + r[1] + ". Do you accept? (y/n) \n")
             if selection.lower() == 'y':
                 AddFriends(r[1])
         else:
-            print(r[0] + " does not equal " + user)
-
+            print(r[0] + " does not equal " + user + '\n')
 def SendRequest(secondUser):
     """Sends a request from the current user to secondUser"""
     firstUser = str(globals.currentAccount.username)
@@ -148,8 +167,6 @@ def SendRequest(secondUser):
     UpdateRequests()
     print('Sent friend request to ' + secondUser + " (under construction)")
     return True
-
-
 def DeleteRequest(secondUser):
     """Removes a friend request"""
     firstUser = str(globals.currentAccount.username)
@@ -162,7 +179,6 @@ def DeleteRequest(secondUser):
     requests.remove(r)    
     UpdateRequests()
     return True #for testing
-
 def UpdateRequests():
     """Overwrites Requests.txt to the most current state"""
     newList = ""
@@ -170,23 +186,10 @@ def UpdateRequests():
         for r in requests:
             newList = newList + r[0] + ' ' + r[1] + '\n'
         print("{}".format(newList), file=requestFile)
-
 def CreateFriendsList(newUser):
         newList = [newUser]
         friendsLists.append(newList)
         UpdateFriendsList()
-
-def LoadFriendsList():
-    #friendsList = []
-    with open("Friends.txt", "r") as friendsListFile:
-        while True:
-            friendsList = friendsListFile.readline()
-            if friendsList:
-                friendsList = friendsList.split()
-                friendsLists.append(friendsList)
-            else:
-                break
-
 def ViewFriendsList():
     firstIteration = True
     friendInput = ""
@@ -208,22 +211,6 @@ def ViewFriendsList():
             if friendInput.isnumeric():
                 FriendMenu(friendsList[int(friendInput)])
             break
-
-def FriendMenu(friend):
-    """Displays options for selected friend from list, only displays profiles from those who have it"""
-    prof_found = FindProfile(friend)
-    if prof_found != None:
-        print(f"Press [P] to view {friend}\'s profile")
-    selection = input(f"Press [R] to remove {friend} from your friends list\nPress [Q] to exit\nMake a selection: ")
-    
-    if selection.lower() == 'p' and prof_found != None:
-        ViewUserProfile(friend)
-    elif selection.lower() == 'r':
-        selection = input(f"Are you sure you want to delete {friend} from your list? (y/n)")
-        if selection.lower() == 'y':
-            DeleteFriends(friend)
-    else:
-        pass
 def AddFriends(secondUser):
     """Creates a connection between two friends"""
     firstUser = str(globals.currentAccount.username)
@@ -249,7 +236,6 @@ def AddFriends(secondUser):
     UpdateFriendsList()
     DeleteRequest(secondUser)
     return True #for testing
-    
 def DeleteFriends(secondUser):
     """Removes a connection between two friends"""
     firstUser = str(globals.currentAccount.username)
@@ -275,7 +261,6 @@ def DeleteFriends(secondUser):
     friendsLists.append(friendList2)
     UpdateFriendsList()
     return True #for testing
-
 def UpdateFriendsList():
     """Overwrites Friends.txt to the most current state"""
     newList = ""
@@ -285,16 +270,13 @@ def UpdateFriendsList():
                 newList = newList + f + ' '
             newList += '\n'
         print("{}".format(newList), file=friendsListFile)
-
+        # Profiles methods
 def ViewUserProfile(name):
     for profile in globals.profiles:
         if profile.username == name:
             print(f"{name}s Profile: \n")
             print(profile.Print())
             break
-
-    
-
 def LoadProfiles():
     """Read in all profiles that are stored within file,
     as well as the associated employment and education information
@@ -350,7 +332,6 @@ def LoadProfiles():
             pInfo[6].replace("_", " "),
             experience,
             education))
-
 def ViewProfile():
     if (globals.currentProfile == None):
         selection = input("Your profile is empty, would you like to fill it out? (y/n) ")
@@ -358,7 +339,6 @@ def ViewProfile():
             CreateProfile()
     else:
         print(globals.currentProfile.Print())
-            
 def CreateProfile():
     """Process information for a new user profile"""
     validDate = False
@@ -419,23 +399,167 @@ def CreateProfile():
     
     with open ("Profiles.txt","a+") as file3:
         print("{}".format(globals.currentProfile.Write()), file=file3)
-    
+def FindProfile(user):
+
+    for p in globals.profiles:
+        if p.username == user:
+            return p
+    return None
+def SearchProfiles():
+    """Return a list of profiles based on specified lastname, major, or college"""
+    result = []
+    lastname = input('Enter last name (or leave blank): ')
+    major = input('Enter major (or leave blank): ')
+    college = input('Enter the school name (or leave blank): ')
+    for p in globals.profiles:
+        if lastname.upper() in p.lastName.upper() and ToPascal(major).upper() in p.major.upper() and ToPascal(college).upper() in p.schoolName.upper():
+            result.append(p)
+
+    if len(result) == 0:
+        print("No results found.")
+    else:
+        r = 0;
+        while r < len(result):
+            print('[' + str(r+1) + '.]'
+            + result[r].firstName + ' '
+            + result[r].lastName + '\t'
+            + result[r].major + '\t'
+            + result[r].schoolName)
+
+            r = r+1
+
+        fullName = result[r - 1].firstName + result[r - 1].lastName
+        selection = input("Would you like to send a request to any of these people? (y/n) ")
+        if selection.upper() == 'Y':
+            selection = input('Enter the number of the person you would like to send a request to (or 0 if you wish to exit): ')
+            if (int(selection) <= len(result)):
+                SendRequest(fullName)
+            else:
+                while (selection > len(result)):
+                    selection = input("Number not on the list, please try again (or 0 to exit): ")
+                    SendRequest(fullName)
+def FindContact():
+    """Allow the user to search for someone by specifying a first and last name."""
+    names = list()
+    found = False
+
+    # Append all first and last names of users to a list
+    with open("Logins.txt", "r") as userFile:
+        while True:
+            userInfo = userFile.readline()
+            if userInfo:
+                userInfo = userInfo.split()
+                names.append({"firstName": userInfo[2], "lastName": userInfo[3]})
+            else:
+                break
+
+    firstName = input("\n" + "Enter first name: ")
+    lastName = input("Enter last name: ")
+
+    # Search the list of names for a matching first and last name
+    for name in names:
+        print(name.get('firstName'), name.get('lastName'))
+        if firstName == name.get('firstName') and lastName == name.get('lastName'):
+            found = True
+            print("\n" + "They are a part of the InCollege system.")
+            # Prompt the user to send a friend request
+            sendRequestChar = input(f"\nWould you like to send {firstName} a friend request? Press [Y] or [N] ")
+            while(sendRequestChar.upper() != 'Y' and sendRequestChar.upper() != 'N'):
+                sendRequestChar = input("Please enter [Y] to send a friend request or [N] to exit ")
+
+            # Send Friend Request
+            if(sendRequestChar.upper() == 'Y' and globals.loggedIn):
+                #Not Written yet
+                SendRequest()
+
+            break
+    if not found:
+        print("\n" + "They are not yet a part of the InCollege system.")
+
+    if found and not globals.loggedIn:
+        print("Join your friends today by signing in or creating an account.")
+
+ # job functions
 def CreateJob():
     """Create a new job posting."""
-    if (len(jobs) >= 10):
+    if (len(globals.jobs) >= 10):
       print('\n' + 'All permitted job postings have been created, please come back later')
       return
     title = input("Enter the job title: ")
     description = input("Enter a job description: ")
     employer = input("Enter the employer: ")
     location = input("Enter the job location: ")
-    salary = int(input("Enter salary (do not include and non-numerical characters): "))
-    jobs.append(Job(title, description, employer, location, salary))
+    salary = input("Enter salary (do not include and non-numerical characters): ")
+    while ( salary.isnumeric() == False):
+        salary = input("Enter salary (do not include and non-numerical characters): ")
+    salary = int(salary)
+    globals.jobs.append(Job(title, description, employer, location, salary))
     with open("Jobs.txt", "a+") as file1:
-        print("{}".format(jobs[len(jobs) - 1].Print()), file=file1)
+        file1.write(globals.jobs[len(globals.jobs) - 1].Print())
+        #print(globals.jobs[len(globals.jobs) - 1].Info(), file=file1)
+def DisplayJobDetails():
+    #display all details for selected job listing
+       global selection
+       print("Job listing: " , globals.jobs[selection-1].Print())
 
+       while True:
+            apply = input("Enter [A] to apply to this job \n" +"Enter [S] to save this job \n" +"Enter [D] to delete this job \n" + f"Press [{globals.goBack.upper()}] to exit" + '\n')
+            apply = apply.lower()
+            if (apply=='a'):
+                SubmitApplication()
+                return
+            elif (selection == 's'):              #
+                print("under construction")       # FIX
+            elif (selection == 'd'):              # ME
+                print("under construction")       #
+            elif (apply == globals.goBack):
+                return
+def DisplayJobs():
+    # display job listing titles
+   for i in range(len(globals.jobs)):
+       print("Job listing",i+1,": " , globals.jobs[i].title)
+def JobMenu():
+    # once job titles are displayed, this will allow navigation through jobs and applications
+    global selection
+    while True:
+        DisplayJobs()
+        selection = input(
+            "\n" + "Enter the number of the job listing you would like to view" + '\n'
+            + "Enter [H] to filter out the jobs you have applied to" + '\n'
+            + "Enter [N] to filter out the jobs you have NOT applied to" + '\n'
+            + f"Press [{globals.goBack.upper()}] to exit" + '\n')
+        selection = selection.lower()
 
-# for create account option
+        if (selection.isnumeric()):
+            selection = int(selection)
+            if (selection>0):
+                if (selection <= len(globals.jobs)):
+                    DisplayJobDetails()
+        elif(selection == 'h'):                 #
+            print("under construction")         # FIX
+        elif (selection == 'n'):                #  ME
+            print("under construction")         #
+        elif (selection == globals.goBack):
+            return selection
+def SubmitApplication():
+    validDate = False
+    global selection
+    while not (validDate):
+        gradDate = input("Enter the date you should be graduating (format YYYY-MM-DD): ")
+        validDate = ValidateDate(gradDate)
+    validDate = False
+    while not (validDate):
+        startDate = input("Enter the date you can start working (format YYYY-MM-DD): ")
+        validDate = ValidateDate(startDate)
+    coverletter = input("Enter your cover letter for this job:\n")
+
+    globals.myApplications.append(Application(gradDate, startDate, coverletter,globals.jobs[selection-1], globals.currentAccount.username))
+    with open("Applications.txt", "a+") as file1:
+        print("{}".format(globals.myApplications[len(globals.myApplications) - 1].Info()), file=file1)
+    print("Your application has been submitted!\n")
+    return
+
+# main menu options
 def CreateAccount():
     """Create a new user account."""
     validUser = False
@@ -483,7 +607,6 @@ def CreateAccount():
     print('Account successfully created!')
 
     ## logins.truncate(0)   this is the erase file function in case accounts must be rewritten
-
 def LoginToAccount():
     """Attempt to log the user into an account."""
     global choice
@@ -504,6 +627,7 @@ def LoginToAccount():
                 globals.loggedIn = True
                 globals.currentAccount = account
                 globals.currentProfile = FindProfile(globals.currentAccount.username)
+                LoadMyApplications()
                 return
 
         # Display an error message if the login fails
@@ -520,94 +644,6 @@ def LoginToAccount():
                 break
             else:
                 continue
-
-def FindProfile(user):
-    
-    for p in globals.profiles:
-        if p.username == user:
-            return p
-    return None
-
-def SearchProfiles():
-    """Return a list of profiles based on specified lastname, major, or college"""
-    result = []
-    lastname = input('Enter last name (or leave blank): ')
-    major = input('Enter major (or leave blank): ')
-    college = input('Enter the school name (or leave blank): ')
-    for p in globals.profiles:
-        if lastname.upper() in p.lastName.upper() and ToPascal(major).upper() in p.major.upper() and ToPascal(college).upper() in p.schoolName.upper():
-            result.append(p)
-    
-    if len(result) == 0:
-        print("No results found.")
-    else:
-        r = 0;
-        while r < len(result):
-            print('[' + str(r+1) + '.]' 
-            + result[r].firstName + ' ' 
-            + result[r].lastName + '\t' 
-            + result[r].major + '\t' 
-            + result[r].schoolName)
-            
-            r = r+1
-
-        fullName = result[r - 1].firstName + result[r - 1].lastName
-        selection = input("Would you like to send a request to any of these people? (y/n) ")
-        if selection.upper() == 'Y':
-            selection = input('Enter the number of the person you would like to send a request to (or 0 if you wish to exit): ')
-            if (int(selection) <= len(result)):
-                SendRequest(fullName)
-            else:
-                while (selection > len(result)):
-                    selection = input("Number not on the list, please try again (or 0 to exit): ")
-                    SendRequest(fullName)
-
-def FindContact():
-    """Allow the user to search for someone by specifying a first and last name."""
-    names = list()
-    found = False
-
-    # Append all first and last names of users to a list
-    with open("Logins.txt", "r") as userFile:
-        while True:
-            userInfo = userFile.readline()
-            if userInfo:
-                userInfo = userInfo.split()
-                names.append({"firstName": userInfo[2], "lastName": userInfo[3]})
-            else:
-                break
-
-    firstName = input("\n" + "Enter first name: ")
-    lastName = input("Enter last name: ")
-
-    # Search the list of names for a matching first and last name
-    for name in names:
-        print(name.get('firstName'), name.get('lastName'))
-        if firstName == name.get('firstName') and lastName == name.get('lastName'):
-            found = True
-            print("\n" + "They are a part of the InCollege system.")
-            # Prompt the user to send a friend request
-            sendRequestChar = input(f"\nWould you like to send {firstName} a friend request? Press [Y] or [N] ")
-            while(sendRequestChar.upper() != 'Y' and sendRequestChar.upper() != 'N'):
-                sendRequestChar = input("Please enter [Y] to send a friend request or [N] to exit ")
-            
-            # Send Friend Request
-            if(sendRequestChar.upper() == 'Y' and globals.loggedIn):
-                #Not Written yet
-                #SendFriendRequest()
-                ShowUnderConstruction()
-            break
-    if not found:
-        print("\n" + "They are not yet a part of the InCollege system.")
-
-    if found and not globals.loggedIn:
-        print("Join your friends today by signing in or creating an account.")
-
-def JobSearch():
-    """NOT YET IMPLEMENTED: Allow the user to search for a job."""
-    print("\n" + "Under construction")
-
-
 def LearnSkill():
     """Present the user with a numbered list of skills to learn."""
     # Number each skill within the file and add it to a dictionary
@@ -629,8 +665,7 @@ def LearnSkill():
             break
         elif selection not in skills.keys():
             continue
-
-
+            #menus
 def ShowLoggedOutMenu():
     """Present menu options for when the user is logged out."""
     while True:
@@ -664,8 +699,21 @@ def ShowLoggedOutMenu():
             ImportantLinks.ShowMenu()
         elif (selection == globals.goBack): # Break out of the inner loop
             return selection
+def FriendMenu(friend):
+    """Displays options for selected friend from list, only displays profiles from those who have it"""
+    prof_found = FindProfile(friend)
+    if prof_found != None:
+        print(f"Press [P] to view {friend}\'s profile")
+    selection = input(f"Press [R] to remove {friend} from your friends list\nPress [Q] to exit\nMake a selection: ")
 
-
+    if selection.lower() == 'p' and prof_found != None:
+        ViewUserProfile(friend)
+    elif selection.lower() == 'r':
+        selection = input(f"Are you sure you want to delete {friend} from your list? (y/n)")
+        if selection.lower() == 'y':
+            DeleteFriends(friend)
+    else:
+        pass
 def ShowLoggedInMenu():
     """Present menu options for when the user is logged in."""
     while True:
@@ -690,7 +738,7 @@ def ShowLoggedInMenu():
         elif (selection == 's'):
             SearchProfiles()
         elif (selection == 'j'):
-            JobSearch()
+            JobMenu()
         elif (selection == 'l'):
             LearnSkill()
         elif (selection == 'p'):
@@ -705,9 +753,8 @@ def ShowLoggedInMenu():
             ViewRequests()
         elif (selection == globals.goBack):
             globals.loggedIn = False
+            globals.myApplications.clear()
             return selection
-
-
 def ShowUsefulLinks():
     global choice
     while True:
@@ -730,14 +777,11 @@ def ShowUsefulLinks():
         elif (choice == globals.goBack):  # Go back to the previous menu
             choice = ''
             return
-
         # Go back to sign up page (second break) (need to go back twice)
         if (choice == 's'):
             return
 
-        quitLogic()
-
-
+    quitLogic()
 def ShowGeneralLinks():
     global choice
     while True:
@@ -776,16 +820,12 @@ def ShowGeneralLinks():
 
         quitLogic()
 
-
 def ShowUnderConstruction():
     print("\n" + "Under construction")
-
-
 def quitLogic():
     global choice
     while(choice != 'q'):
         choice = input(f"\nPress [{globals.goBack.upper()}] to return to the previous menu:\n")
-
 
 # include function to call from CreateAccount()  that would create account (change user and pass from "NULL") then add info to some .txt file for permanent storage
 # include function that upon starting InCollege app would open .txt file and create already existing accounts / add them to array
@@ -797,14 +837,12 @@ def mainMenu():
 
     global logins
     global choice
-    global jobs
     global friendsLists
     global requests
     
     globals.currentProfile = None
     logins = open('Logins.txt', 'a+')
     choice = 'd'
-    jobs = []
     friendsLists = []
     requests = []
     
@@ -814,6 +852,7 @@ def mainMenu():
     LoadProfiles()
     LoadFriendsList()
     LoadRequests()
+    LoadJobs()
 
     while True:  # Logged in and logged out menu loop
         while not globals.loggedIn:

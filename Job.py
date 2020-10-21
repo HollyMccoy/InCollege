@@ -9,10 +9,12 @@ class Job:
         self.salary = salary
 
     # a title, a description, the employer, a location, and a salary
+    def Info(self):
+        return  self.title + ' \n' + self.description + ' \n' + self.employer  +' \n' +  self.location  +' \n' +   str(self.salary)
 
     def Print(self):
         locale.setlocale(locale.LC_ALL, '')
-        return self.title + ' ' + self.description + ' ' + self.employer + ' ' + self.location + ' ' + locale.currency( self.salary )
+        return ' ' + self.title + ' ' + self.description + ' ' + self.employer + ' ' + self.location + ' ' +  str(self.salary) + '\n'
         
 class Experience:
     def __init__ (self,
