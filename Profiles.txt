@@ -1,2 +1,2 @@
-QWERT Donuts McGee IT_Student InformationTechnology UniversityOfSouthFlorida I_am_an_ambitious_and_hardworking_student_looking_to_start_my_career
-ASDF Bacon McMunch IT_Student2 InformationTechnology2 UniversityOfSouthFlorida I_am_an_ambitious_and_hardworking_student_looking_to_start_my_career
+person1 person1 human COP_student Cs Usf person_that_studies
+

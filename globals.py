@@ -7,11 +7,13 @@ def Initialize():
     global goBack  # The character used to go back to the previous menu
     global loggedIn  # Whether or not the current user is logged in
     global students  # List of all saved accounts
-
+    global jobs      # List of jobs
+    global myApplications  # List of applications submitted by current user
     goBack = 'q'
     loggedIn = False
     students = []
-
+    jobs=[]
+    myApplications = []
 
 def updateAccounts():
     """Update the current account's information and then save all accounts to the login file."""
