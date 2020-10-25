@@ -1,7 +1,8 @@
 import locale
 import datetime
 class Job:
-    def __init__ (self, title, description, employer, location, salary ):     #constructor
+    def __init__ (self, creator, title, description, employer, location, salary ):     #constructor
+        self.creator = creator
         self.title = title
         self.description = description
         self.employer = employer

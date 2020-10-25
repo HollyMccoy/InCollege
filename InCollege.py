@@ -493,10 +493,25 @@ def CreateJob():
     while ( salary.isnumeric() == False):
         salary = input("Enter salary (do not include and non-numerical characters): ")
     salary = int(salary)
-    globals.jobs.append(Job(title, description, employer, location, salary))
+    globals.jobs.append(Job(globals.currentAccount, title, description, employer, location, salary))
     with open("Jobs.txt", "a+") as file1:
         file1.write(globals.jobs[len(globals.jobs) - 1].Print())
         #print(globals.jobs[len(globals.jobs) - 1].Info(), file=file1)
+
+def DeleteJob(jobNum):
+    globals.jobs.remove(globals.jobs[jobNum - 1])
+    with open("Jobs.txt", "r") as f:
+        lines = f.readlines()
+    with open("Jobs.txt", "w") as f:
+        for line in lines:
+            if line.strip("\n") != globals.jobs[jobNum - 1]:
+                f.write(line)
+
+def SaveJob(jobNum):
+    globals.savedJobs.append(globals.jobs[jobNum - 1])
+    with open("SavedJobs.txt", "w") as saveFile:
+        saveFile.write(globals.savedJobs[len(globals.jobs) - 1])
+
 def DisplayJobDetails():
     #display all details for selected job listing
        global selection
@@ -508,16 +523,19 @@ def DisplayJobDetails():
             if (apply=='a'):
                 SubmitApplication()
                 return
-            elif (selection == 's'):              #
-                print("under construction")       # FIX
-            elif (selection == 'd'):              # ME
-                print("under construction")       #
+            elif (selection == 's'):
+                SaveJob(selection)
+                return
+            elif (apply == 'd'):
+                DeleteJob(selection)
+                return
             elif (apply == globals.goBack):
                 return
 def DisplayJobs():
     # display job listing titles
    for i in range(len(globals.jobs)):
        print("Job listing",i+1,": " , globals.jobs[i].title)
+
 def JobMenu():
     # once job titles are displayed, this will allow navigation through jobs and applications
     global selection
@@ -527,6 +545,7 @@ def JobMenu():
             "\n" + "Enter the number of the job listing you would like to view" + '\n'
             + "Enter [H] to filter out the jobs you have applied to" + '\n'
             + "Enter [N] to filter out the jobs you have NOT applied to" + '\n'
+            + "Enter [S] to show the jobs you have had saved" + '\n'
             + f"Press [{globals.goBack.upper()}] to exit" + '\n')
         selection = selection.lower()
 
@@ -535,10 +554,26 @@ def JobMenu():
             if (selection>0):
                 if (selection <= len(globals.jobs)):
                     DisplayJobDetails()
-        elif(selection == 'h'):                 #
-            print("under construction")         # FIX
-        elif (selection == 'n'):                #  ME
-            print("under construction")         #
+        elif (selection == 'h'):
+            for i in range (len(globals.jobs)):
+                for j in range(len(globals.myApplications)):
+                    if globals.jobs[i] == globals.myApplications[j].intendedJob:
+                        print("You have already applied to job " + i + ".\n")
+                        break
+            selection = int(selection)
+            if selection > 0:
+                if selection <= len(globals.jobs):
+                    DisplayJobDetails()
+        elif (selection == 'n'):
+            for i in range(len(globals.jobs)):
+                for j in range(len(globals.myApplications)):
+                    if globals.jobs[i] != globals.myApplications[j].intendedJob:
+                        continue
+                if globals.jobs[i] != globals.myApplications[j].intendedJob:
+                    print("You have not yet applied to job " + i + ".\n")
+        elif (selection == 's'):
+            for i in range(len(globals.savedJobs)):
+                print("Job " + i + " information: " + globals.savedJobs[i])
         elif (selection == globals.goBack):
             return selection
 def SubmitApplication():
