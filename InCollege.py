@@ -123,7 +123,7 @@ def LoadJobs():
     Openings = listings.readlines()
     for job in Openings:
         details = job.split()
-        globals.jobs.append(Job(details[0], details[1], details[2], details[3], details[4]))
+        globals.jobs.append(Job(details[0], details[1], details[2], details[3], details[4], details[5]))
 
 
 def LoadFriendsList():
@@ -554,9 +554,9 @@ def CreateJob():
     while (salary.isnumeric() == False):
         salary = input("Enter salary (do not include and non-numerical characters): ")
     salary = int(salary)
-    globals.jobs.append(Job(globals.currentAccount, title, description, employer, location, salary))
+    globals.jobs.append(Job(str(globals.currentAccount.username), title, description, employer, location, salary))
     with open("Jobs.txt", "a+") as file1:
-        file1.write(globals.jobs[len(globals.jobs) - 1].Print())
+        file1.write(globals.jobs[len(globals.jobs) - 1].PrintWithCreator())  # PrintWithCreator function added in at the last minute
         # print(globals.jobs[len(globals.jobs) - 1].Info(), file=file1)
 
 
