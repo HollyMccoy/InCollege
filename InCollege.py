@@ -123,7 +123,8 @@ def LoadJobs():
     Openings = listings.readlines()
     for job in Openings:
         details = job.split()
-        globals.jobs.append(Job(details[0], details[1], details[2], details[3], details[4], details[5]))
+        if len(details) == 6:
+            globals.jobs.append(Job(details[0], details[1], details[2], details[3], details[4], details[5]))
 
 
 def LoadFriendsList():
