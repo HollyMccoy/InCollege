@@ -21,25 +21,20 @@ class Inbox:
         # count in text file seperate sections
             if(astericksCount ==1):
                 currentUser = line.strip()
-                print(currentUser)
                 astericksCount +=1
             if(astericksCount ==3):
                 recipient = line.strip()
-                print(recipient)
                 astericksCount+=1
             if(astericksCount == 5):
                 text = line.strip()
-                print(text)
                 astericksCount+=1
             if(astericksCount == 7):
                 isNew = bool(line.strip())
-                print(isNew)
                 astericksCount+=1
             if (line[0]=='*' and line[1]=='*'):
                 astericksCount +=1
             if(astericksCount==8):
                 self.inboxAllAccounts.append(Message(currentUser,recipient,text,isNew))
-                print(self.inboxAllAccounts[0])
                 astericksCount=0
 
     def ShowMessage(self,message):
@@ -50,7 +45,7 @@ class Inbox:
             choice = input(
                 "\n" + "Enter [R] to reply" + '\n' \
                 + "Enter [D] to delete message" + '\n' \
-                + f"Press [{globals.goBack.upper()}] to return to the previous menu" + '\n')
+                + "Enter [Q] to return to the previous menu" + '\n')
             choice = choice.lower()
 
             if (choice == 'r'): 
@@ -67,9 +62,8 @@ class Inbox:
                 #
                 #
                 print("under construction")
-            elif (choice == globals.goBack):  
-                choice == ''
-                return
+            elif (choice == 'q'):  
+                return False
 
         quitLogic()
 

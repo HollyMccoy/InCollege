@@ -179,10 +179,10 @@ def FindNotification():
     user = globals.currentAccount.username
     numMessages=0
     for i in range(len(inbox.inboxAllAccounts)):
-        if (inbox.inboxAllAccounts[i].recipient == str(globals.currentAccount) and inbox.inboxAllAccounts[i].isNew):
+        if (str(inbox.inboxAllAccounts[i].recipient.strip()) == str(globals.currentAccount.username) and inbox.inboxAllAccounts[i].isNew):
             numMessages+=1
     if(numMessages>0):
-        print('\nYou have recieved '+numMessages+' message(s), check your inbox!\n')
+        print('\nYou have recieved '+str(numMessages)+' message(s), check your inbox!\n')
 
 
     for r in requests:
@@ -1029,7 +1029,6 @@ def mainMenu():
 
         while globals.loggedIn:
             FindNotification()
-            
             choice = ShowLoggedInMenu()
             if (choice == globals.goBack):  # Break out and go back to the logged out menu
                 break
