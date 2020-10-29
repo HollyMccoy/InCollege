@@ -10,6 +10,7 @@ def Initialize():
     global jobs      # List of jobs
     global myApplications  # List of applications submitted by current user
     global savedJobs #List of jobs that you have saved
+    
     goBack = 'q'
     loggedIn = False
     students = []

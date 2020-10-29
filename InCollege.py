@@ -8,7 +8,9 @@ from Application import Application
 import globals
 import sys, time
 from datetime import date
+from Inbox import Inbox
 
+inbox = Inbox()
 
 def ToPascal(s):
     return (''.join(x for x in s.title() if not x.isspace()))
@@ -159,6 +161,9 @@ def LoadMyApplications():
 
             i += 1
 
+def LoadMessages():
+    inbox.loadInbox()
+
 
 # Friend list features
 def ViewRequests():
@@ -172,6 +177,14 @@ def ViewRequests():
 def FindNotification():
     """Informs the user of their most recent friend request, if any"""
     user = globals.currentAccount.username
+    numMessages=0
+    for i in range(len(inbox.inboxAllAccounts)):
+        if (inbox.inboxAllAccounts[i].recipient == str(globals.currentAccount) and inbox.inboxAllAccounts[i].isNew):
+            numMessages+=1
+    if(numMessages>0):
+        print('\nYou have recieved '+numMessages+' message(s), check your inbox!\n')
+
+
     for r in requests:
         if r[0] == user:
             selection = input("You have a friend request from " + r[1] + ". Do you accept? (y/n) \n")
@@ -604,6 +617,14 @@ def DisplayJobs():
     for i in range(len(globals.jobs)):
         print("Job listing", i + 1, ": ", globals.jobs[i].title)
 
+def DisplayUsers():
+    for i in range(len(globals.students)):
+        print(globals.students[i].username,'\n')
+    recipient = input("Enter the username of the account you would like to message:")
+    for i in range(len(globals.students)):
+        if (globals.students[i].username == recipient):
+            text = input('\nEnter the message you would like to send '+ globals.students[i].username + '\n' )
+            inbox.SendMessage(globals.currentAccount.username,recipient,text)
 
 def JobMenu():
     # once job titles are displayed, this will allow navigation through jobs and applications
@@ -714,8 +735,6 @@ def CreateAccount():
     print('Account successfully created!')
 
     ## logins.truncate(0)   this is the erase file function in case accounts must be rewritten
-
-
 def LoginToAccount():
     """Attempt to log the user into an account."""
     global choice
@@ -778,7 +797,6 @@ def LearnSkill():
             continue
             # menus
 
-
 def ShowLoggedOutMenu():
     """Present menu options for when the user is logged out."""
     while True:
@@ -810,6 +828,7 @@ def ShowLoggedOutMenu():
             ShowUsefulLinks()
         elif (selection == 'i'):
             ImportantLinks.ShowMenu()
+       
         elif (selection == globals.goBack):  # Break out of the inner loop
             return selection
 
@@ -845,6 +864,7 @@ def ShowLoggedInMenu():
             + "Press [I] to show InCollege important links" + '\n' \
             + "Press [V] to view friends list" + '\n' \
             + "Press [E] to check your pending friend requests." + '\n' \
+            + "Press [M] to open the messaging menu" + '\n' \
             + f"Press [{globals.goBack.upper()}] to log out" + '\n')
         selection = selection.lower()
 
@@ -868,11 +888,31 @@ def ShowLoggedInMenu():
             ViewFriendsList()
         elif (selection == 'e'):
             ViewRequests()
+        elif (selection == 'm'):
+           MessageingMenu()
         elif (selection == globals.goBack):
             globals.loggedIn = False
             globals.myApplications.clear()
             return selection
 
+def MessageingMenu():
+    global choice
+    while True:
+        choice = input(
+            "\n" + "Press [V] to view inbox" + '\n' \
+            + "Press [S] send message" + '\n' \
+            + f"Press [{globals.goBack.upper()}] to return to the previous menu" + '\n')
+        choice = choice.lower()
+
+        if (choice == 'v'):  # Help Center
+            inbox.ShowPersonalInbox(str(globals.currentAccount.username))
+        elif (choice == 's'):  # Developers
+            DisplayUsers()
+        elif (choice == globals.goBack):  # Go back to Useful Links
+            choice == ''
+            return
+
+        quitLogic()
 
 def ShowUsefulLinks():
     global choice
@@ -978,7 +1018,7 @@ def mainMenu():
     LoadFriendsList()
     LoadRequests()
     LoadJobs()
-
+    LoadMessages()
     while True:  # Logged in and logged out menu loop
         while not globals.loggedIn:
             choice = ShowLoggedOutMenu()
@@ -989,6 +1029,7 @@ def mainMenu():
 
         while globals.loggedIn:
             FindNotification()
+            
             choice = ShowLoggedInMenu()
             if (choice == globals.goBack):  # Break out and go back to the logged out menu
                 break
