@@ -18,7 +18,7 @@ class Message:
     
         
     def Print(self):
-        return ('\n******************\nTo:'+str(self.currentUsername) +'\nFrom:'
+        return ('\n******************\nFrom:'+str(self.currentUsername) +'\nTo:'
         + self.recipient + '\nMessage:\n'
         + self.message +'\n\n********************\n')
 
