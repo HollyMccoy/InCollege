@@ -543,7 +543,7 @@ def FindContact():
             # Send Friend Request
             if (sendRequestChar.upper() == 'Y' and globals.loggedIn):
                 # Not Written yet
-                SendRequest()
+                SendRequest(name.get('username'))
 
             break
     if not found:
