@@ -22,6 +22,9 @@ class TestMainFiles:
     def test_LoginsFile(self):
         assert path.exists("Logins.txt")
 
+    def test_MessagesFile(self):
+        assert path.exists("Messages.txt")
+
     def test_ProfilesFile(self):
         assert path.exists("Profiles.txt")
 
