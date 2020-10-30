@@ -77,7 +77,7 @@ class Inbox:
                 i+=1
         i=0
         j=0
-        ans = input('\nEnter the number of the message you would like to view\nEnter [Q] to quit lookinf at the inbox')
+        ans = input('\nEnter the number of the message you would like to view\nEnter [Q] to quit looking at the inbox: ')
         
         if (ans.lower == 'q'):
             return False
@@ -94,8 +94,9 @@ class Inbox:
                         i+=1
                         
 
-                    if(i==ans):   
-                        self.ShowMessage(self.inboxAllAccounts[j])
+                    if(i==ans):
+                        self.ShowMessage(self.inboxAllAccounts[message])
+                        #self.ShowMessage(self.inboxAllAccounts[j])
 
 
                 j+=1
