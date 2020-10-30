@@ -197,13 +197,12 @@ def FindNotification():
 def SendRequest(secondUser):
     """Sends a request from the current user to secondUser"""
     firstUser = str(globals.currentAccount.username)
+
     for r in requests:
         if (r[0] == firstUser and r[1] == secondUser):
             print("Error: You have made this request already")
             return False
-    requests.remove(r)
-    r[0].append(firstUser)
-    r[1].append(secondUser)
+    r = [firstUser,secondUser]
     requests.append(r)
     UpdateRequests()
     print('Sent friend request to ' + secondUser + " (under construction)")
