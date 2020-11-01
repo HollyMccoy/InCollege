@@ -53,7 +53,7 @@ class TestMainFilesContent:
         assert checkParamLength("Jobs.txt", 5)
 
     def test_LoginsFile(self):
-        assert checkParamLength("Logins.txt", 8)
+        assert checkParamLength("Logins.txt", 9)
 
     def test_ProfilesFile(self):
         assert checkParamLength("Profiles.txt", 7)
