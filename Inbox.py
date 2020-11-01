@@ -81,7 +81,6 @@ class Inbox:
         for msg in self.inboxAllAccounts:
             if msg == message:
                 msg.isNew = False
-                print(f"{msg.currentUsername} {msg.recipient} {msg.message} {msg.isNew}")
                 self.UpdateMessagesFile()
                 break
 
