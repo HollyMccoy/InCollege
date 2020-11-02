@@ -8,7 +8,9 @@ from Application import Application
 import globals
 import sys, time
 from datetime import date
+from Inbox import Inbox
 
+inbox = Inbox()
 
 def ToPascal(s):
     return (''.join(x for x in s.title() if not x.isspace()))
@@ -23,9 +25,9 @@ def SuccessStory():
         print(line)
         line = Story.readline().rstrip()
     print()
+
+
     # Validation methods
-
-
 def ValidatePassword(input):
     """Check if a password meets security criteria."""
     num = False
@@ -78,30 +80,33 @@ def ValidateDegree(input):
         return True
     else:
         return False
+
+
     # start/loading methods
-
-
 def LoadAccounts():
     """Read in all accounts that are stored within file."""
-    logins = open('Logins.txt', 'r')
-    userPass = logins.readlines()
-
-    for account in userPass:
-        if len(account.split()) == 8:  # Determine if an account has the correct number of parameters
-            credentials = account.split()
-            globals.students.append(User(credentials[0],
-                                         credentials[1],
-                                         credentials[2],
-                                         credentials[3],
-                                         credentials[4],
-                                         credentials[5],
-                                         credentials[6],
-                                         credentials[7]))
-        else:
-            print("Warning: invalid data in logins.txt")
-            break
-    # userPass = userPass.split()
-    # print(userPass)
+    numParams = 9  # Expected number of parameters per line
+    with open("Logins.txt", "r") as loginFile:
+        accounts = loginFile.readlines()
+        for account in accounts:
+            if len(account.split()) == numParams:  # Determine if an account has the correct number of parameters
+                credentials = account.split()
+                #globals.students.append(User(*credentials))  # Append all parameters
+                globals.students.append(User(
+                    credentials[0],  # username
+                    credentials[1],  # password
+                    credentials[2],  # firstname
+                    credentials[3],  # lastname
+                    globals.strToBool(credentials[4]),  # accountPlus
+                    globals.strToBool(credentials[5]),  # emailAlerts
+                    globals.strToBool(credentials[6]),  # textAlerts
+                    globals.strToBool(credentials[7]),  # targetedAdvertising
+                    credentials[8]))  # language
+            elif account == '\n':  # Ignore blank lines
+                continue
+            else:
+                raise Exception("Invalid data in Logins.txt")
+                break
 
 
 def LoadRequests():
@@ -159,6 +164,9 @@ def LoadMyApplications():
 
             i += 1
 
+def LoadMessages():
+    inbox.loadInbox()
+
 
 # Friend list features
 def ViewRequests():
@@ -172,6 +180,14 @@ def ViewRequests():
 def FindNotification():
     """Informs the user of their most recent friend request, if any"""
     user = globals.currentAccount.username
+    numMessages=0
+    for i in range(len(inbox.inboxAllAccounts)):
+        if (str(inbox.inboxAllAccounts[i].recipient.strip()) == str(globals.currentAccount.username) and inbox.inboxAllAccounts[i].isNew):
+            numMessages+=1
+    if(numMessages>0):
+        print('\nYou have recieved '+str(numMessages)+' message(s), check your inbox!\n')
+
+
     for r in requests:
         if r[0] == user:
             selection = input("You have a friend request from " + r[1] + ". Do you accept? (y/n) \n")
@@ -184,13 +200,12 @@ def FindNotification():
 def SendRequest(secondUser):
     """Sends a request from the current user to secondUser"""
     firstUser = str(globals.currentAccount.username)
+
     for r in requests:
         if (r[0] == firstUser and r[1] == secondUser):
             print("Error: You have made this request already")
             return False
-    requests.remove(r)
-    r[0].append(firstUser)
-    r[1].append(secondUser)
+    r = [firstUser,secondUser]
     requests.append(r)
     UpdateRequests()
     print('Sent friend request to ' + secondUser + " (under construction)")
@@ -311,8 +326,20 @@ def UpdateFriendsList():
             for f in friendsList:
                 newList = newList + f + ' '
             newList += '\n'
-        print("{}".format(newList), file=friendsListFile)
+        print("{}".format(newList), file=friendsListFile, end='')
         # Profiles methods
+
+
+def IsFriend(user, other):
+    """Returns whether two users are friends."""
+    friendship = False
+    with open("Friends.txt", "r") as friendsListFile:
+        friendsList = friendsListFile.read().splitlines()
+        for line in friendsList:
+            if (user in line) and (other in line):
+                friendship = True
+                break
+    return friendship
 
 
 def ViewUserProfile(name):
@@ -452,7 +479,7 @@ def CreateProfile():
     globals.profiles.append(globals.currentProfile)
 
     with open("Profiles.txt", "a+") as file3:
-        print("{}".format(globals.currentProfile.Write()), file=file3)
+        print("{}".format(globals.currentProfile.Write()), file=file3, end="")
 
 
 def FindProfile(user):
@@ -519,7 +546,6 @@ def FindContact():
 
     # Search the list of names for a matching first and last name
     for name in names:
-        print(name.get('firstName'), name.get('lastName'))
         if firstName == name.get('firstName') and lastName == name.get('lastName'):
             found = True
             print("\n" + "They are a part of the InCollege system.")
@@ -531,7 +557,7 @@ def FindContact():
             # Send Friend Request
             if (sendRequestChar.upper() == 'Y' and globals.loggedIn):
                 # Not Written yet
-                SendRequest()
+                SendRequest(name.get('username'))
 
             break
     if not found:
@@ -603,6 +629,52 @@ def DisplayJobs():
     # display job listing titles
     for i in range(len(globals.jobs)):
         print("Job listing", i + 1, ": ", globals.jobs[i].title)
+
+
+def DisplayUsers():
+    """
+    Display all registered users for Plus accounts,
+    or display all friended users for standard accounts.
+    """
+    print(f'\n{"USER NAME":<20}{"FIRST NAME":<20}{"LAST NAME":<20}{"FRIEND":<6}')
+    print('-' * 66)
+
+    # Display all users for Plus accounts
+    if globals.currentAccount.accountPlus == True:
+        for user in globals.students:
+            if user != globals.currentAccount:  # Exclude self
+                isFriend = None
+                if globals.IsFriend(globals.currentAccount.username, user.username):
+                    isFriend = "Y"
+                else:
+                    isFriend = "N"
+                print(f"{user.username:<20}" +
+                    f"{user.firstname:<20}" +
+                    f"{user.lastname:<20}" +
+                    f"{isFriend:<6}")
+
+    # Display only friends for standard accounts
+    else:
+        for user in globals.students:
+            if user != globals.currentAccount:  # Exclude self
+                if globals.IsFriend(globals.currentAccount.username, user.username):
+                    print(f"{user.username:<20}" +
+                        f"{user.firstname:<20}" +
+                        f"{user.lastname:<20}" +
+                        "Y" + " " * 5)
+
+    while True:
+        recipient = input("\nEnter the username of the account you would like to message: ")
+        if globals.AccountExists(recipient):
+            break
+        else:
+            print("That account does not exist." + "\n")
+
+    if globals.CanSendMessage(globals.currentAccount.username, recipient):
+        text = input('\nEnter the message you would like to send '+ recipient + ':\n')
+        inbox.SendMessage(globals.currentAccount.username,recipient,text)
+    else:
+        print("\nI'm sorry, you are not friends with that person" + "\n")
 
 
 def JobMenu():
@@ -689,33 +761,45 @@ def CreateAccount():
     # take in password
     while (validPass == False):
         inputPass = input(
-            "Please enter a password (must contain 8 to 12 characters, one capital letter, one digit, and one symbol): ")
+            "\nPlease enter a password (must contain 8 to 12 characters, one capital letter, one digit, and one symbol): ")
         validPass = ValidatePassword(inputPass)
         # below should also confirm password is valid ( minimum of 8 characters), (maximum of 12 characters), (at least one capital letter), (one digit), (one non-alpha character)
 
     # take in first name
-    inputFirstName = input("Please enter your first name: ")
+    inputFirstName = input("\nPlease enter your first name: ")
 
     # take in last name
-    inputLastName = input("Please enter your last name: ")
+    inputLastName = input("\nPlease enter your last name: ")
+
+    # Prompt user to select a "Standard" or "Plus" account membership option
+    accountPlus = None
+    while True:
+        accountPlus = input("\nPlease select an account membership option by entering a letter choice:" + "\n" +
+            "[S] - Standard account" + "\n" +
+            "[P] - Plus account (Plus members will be billed $10 per month)" + "\n")
+        if accountPlus.lower() == 's':
+            accountPlus = False
+            break
+        elif accountPlus.lower() == 'p':
+            accountPlus = True
+            break
 
     # once username and password are deemed valid, place new user in .txt file and array
     globals.students.append(User(inputUser,
                                  inputPass,
                                  inputFirstName,
                                  inputLastName,
+                                 accountPlus,  # Standard = false, Plus = true
                                  emailAlerts=True,
                                  textAlerts=True,
                                  targetedAdvertising=True,
                                  language="English"))
-    with open("Logins.txt", "a+") as text_file:
-        print("{}".format(globals.students[len(globals.students) - 1].Print()), file=text_file)
+    with open("Logins.txt", "a+") as loginFile:
+        print("{}".format(globals.students[len(globals.students) - 1].Print()), file=loginFile)
     CreateFriendsList(inputUser)
     print('Account successfully created!')
 
     ## logins.truncate(0)   this is the erase file function in case accounts must be rewritten
-
-
 def LoginToAccount():
     """Attempt to log the user into an account."""
     global choice
@@ -778,7 +862,6 @@ def LearnSkill():
             continue
             # menus
 
-
 def ShowLoggedOutMenu():
     """Present menu options for when the user is logged out."""
     while True:
@@ -810,6 +893,7 @@ def ShowLoggedOutMenu():
             ShowUsefulLinks()
         elif (selection == 'i'):
             ImportantLinks.ShowMenu()
+
         elif (selection == globals.goBack):  # Break out of the inner loop
             return selection
 
@@ -845,6 +929,7 @@ def ShowLoggedInMenu():
             + "Press [I] to show InCollege important links" + '\n' \
             + "Press [V] to view friends list" + '\n' \
             + "Press [E] to check your pending friend requests." + '\n' \
+            + "Press [M] to open the messaging menu" + '\n' \
             + f"Press [{globals.goBack.upper()}] to log out" + '\n')
         selection = selection.lower()
 
@@ -868,11 +953,31 @@ def ShowLoggedInMenu():
             ViewFriendsList()
         elif (selection == 'e'):
             ViewRequests()
+        elif (selection == 'm'):
+           MessageingMenu()
         elif (selection == globals.goBack):
             globals.loggedIn = False
             globals.myApplications.clear()
             return selection
 
+def MessageingMenu():
+    global choice
+    while True:
+        choice = input(
+            "\n" + "Press [V] to view inbox" + '\n' \
+            + "Press [S] send message" + '\n' \
+            + f"Press [{globals.goBack.upper()}] to return to the previous menu" + '\n')
+        choice = choice.lower()
+
+        if (choice == 'v'):  # Help Center
+            inbox.ShowPersonalInbox(str(globals.currentAccount.username))
+        elif (choice == 's'):  # Developers
+            DisplayUsers()
+        elif (choice == globals.goBack):  # Go back to Useful Links
+            choice == ''
+            return
+
+        #quitLogic()
 
 def ShowUsefulLinks():
     global choice
@@ -978,7 +1083,7 @@ def mainMenu():
     LoadFriendsList()
     LoadRequests()
     LoadJobs()
-
+    LoadMessages()
     while True:  # Logged in and logged out menu loop
         while not globals.loggedIn:
             choice = ShowLoggedOutMenu()
@@ -997,3 +1102,5 @@ def mainMenu():
 if __name__ == "__main__":
     globals.Initialize()
     mainMenu()
+
+# Pineapple is the greatest pizza topping in the world

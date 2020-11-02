@@ -22,6 +22,9 @@ class TestMainFiles:
     def test_LoginsFile(self):
         assert path.exists("Logins.txt")
 
+    def test_MessagesFile(self):
+        assert path.exists("Messages.txt")
+
     def test_ProfilesFile(self):
         assert path.exists("Profiles.txt")
 
@@ -50,7 +53,7 @@ class TestMainFilesContent:
         assert checkParamLength("Jobs.txt", 5)
 
     def test_LoginsFile(self):
-        assert checkParamLength("Logins.txt", 8)
+        assert checkParamLength("Logins.txt", 9)
 
     def test_ProfilesFile(self):
         assert checkParamLength("Profiles.txt", 7)

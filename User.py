@@ -5,6 +5,7 @@ class User:
         password,
         firstname,
         lastname,
+        accountPlus,  # False = "Standard" account, True = "Plus" account
         emailAlerts,
         textAlerts,
         targetedAdvertising,
@@ -15,6 +16,7 @@ class User:
         self.password = password
         self.firstname = firstname
         self.lastname = lastname
+        self.accountPlus = accountPlus
         self.emailAlerts = emailAlerts
         self.textAlerts = textAlerts
         self.targetedAdvertising = targetedAdvertising
@@ -27,6 +29,7 @@ class User:
         self.password = account.password
         self.firstname = account.firstname
         self.lastname = account.lastname
+        self.accountPlus = accountPlus
         self.emailAlerts = account.emailAlerts
         self.textAlerts = account.textAlerts
         self.targetedAdvertising = account.targetedAdvertising
@@ -47,6 +50,7 @@ class User:
         + self.password + ' '
         + self.firstname + ' '
         + self.lastname + ' '
+        + str(self.accountPlus) + ' '
         + str(self.emailAlerts) + ' '
         + str(self.textAlerts) + ' '
         + str(self.targetedAdvertising) + ' '
