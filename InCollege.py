@@ -513,17 +513,17 @@ def SearchProfiles():
 
             r = r + 1
 
-        fullName = result[r - 1].firstName + result[r - 1].lastName
+        userName = result[r - 1].username
         selection = input("Would you like to send a request to any of these people? (y/n) ")
         if selection.upper() == 'Y':
             selection = input(
                 'Enter the number of the person you would like to send a request to (or 0 if you wish to exit): ')
             if (int(selection) <= len(result)):
-                SendRequest(fullName)
+                SendRequest(userName)
             else:
                 while (selection > len(result)):
                     selection = input("Number not on the list, please try again (or 0 to exit): ")
-                    SendRequest(fullName)
+                    SendRequest(userName)
 
 
 def FindContact():
