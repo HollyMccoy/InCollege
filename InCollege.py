@@ -139,7 +139,7 @@ def LoadFriendsList():
             friendsList = friendsListFile.readline()
             if friendsList:
                 friendsList = friendsList.split()
-                friendsLists.append(friendsList)
+                friendsLists.append(friendsList)    
             else:
                 break
 
@@ -189,12 +189,12 @@ def FindNotification():
 
 
     for r in requests:
-        if r[0] == user:
-            selection = input("You have a friend request from " + r[1] + ". Do you accept? (y/n) \n")
+        if r[1] == user:
+            selection = input("You have a friend request from " + r[0] + ". Do you accept? (y/n) \n")
             if selection.lower() == 'y':
                 AddFriends(r[1])
         else:
-            print(r[0] + " does not equal " + user + '\n')
+            print(r[1] + " does not equal " + user + '\n')
 
 
 def SendRequest(secondUser):
@@ -208,7 +208,7 @@ def SendRequest(secondUser):
     r = [firstUser,secondUser]
     requests.append(r)
     UpdateRequests()
-    print('Sent friend request to ' + secondUser + " (under construction)")
+    print('Sent friend request to ' + secondUser)
     return True
 
 
@@ -268,10 +268,14 @@ def AddFriends(secondUser):
     """Creates a connection between two friends"""
     firstUser = str(globals.currentAccount.username)
     for friendList1 in friendsLists:
+        if (len(friendList1) == 0):
+            continue
         if (friendList1[0] == firstUser):
             break
 
     for friendList2 in friendsLists:
+        if (len(friendList2) == 0):
+            continue
         if (friendList2[0] == secondUser):
             break
     if secondUser not in friendList2:
@@ -503,7 +507,7 @@ def SearchProfiles():
     if len(result) == 0:
         print("No results found.")
     else:
-        r = 0;
+        r = 0
         while r < len(result):
             print('[' + str(r + 1) + '.]'
                   + result[r].firstName + ' '
@@ -513,17 +517,17 @@ def SearchProfiles():
 
             r = r + 1
 
-        fullName = result[r - 1].firstName + result[r - 1].lastName
         selection = input("Would you like to send a request to any of these people? (y/n) ")
         if selection.upper() == 'Y':
             selection = input(
                 'Enter the number of the person you would like to send a request to (or 0 if you wish to exit): ')
             if (int(selection) <= len(result)):
-                SendRequest(fullName)
+                userName = result[int(selection) - 1].username
+                SendRequest(userName)
             else:
                 while (selection > len(result)):
                     selection = input("Number not on the list, please try again (or 0 to exit): ")
-                    SendRequest(fullName)
+                    SendRequest(userName)
 
 
 def FindContact():
