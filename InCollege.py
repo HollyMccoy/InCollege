@@ -139,7 +139,7 @@ def LoadFriendsList():
             friendsList = friendsListFile.readline()
             if friendsList:
                 friendsList = friendsList.split()
-                friendsLists.append(friendsList)    
+                friendsLists.append(friendsList)
             else:
                 break
 
@@ -177,17 +177,23 @@ def ViewRequests():
             print(r[1])
 
 
-def FindNotification():
-    """Informs the user of their most recent friend request, if any"""
+def FindNotifications():
+    """Informs the user of any pending notifications."""
+    NotifyNewMessage()
+    NotifyFriendRequest()
+    NotifyNewJob()
+    NotifyDeletedJob()
+    NotifyNoApplications()
+    '''
     user = globals.currentAccount.username
     numMessages=0
     for i in range(len(inbox.inboxAllAccounts)):
         if (str(inbox.inboxAllAccounts[i].recipient.strip()) == str(globals.currentAccount.username) and inbox.inboxAllAccounts[i].isNew):
             numMessages+=1
     if(numMessages>0):
-        print('\nYou have recieved '+str(numMessages)+' message(s), check your inbox!\n')
+        print('\nYou have received '+str(numMessages)+' message(s), check your inbox!\n')
 
-
+    # Friend requests
     for r in requests:
         if r[1] == user:
             selection = input("You have a friend request from " + r[0] + ". Do you accept? (y/n) \n")
@@ -195,6 +201,74 @@ def FindNotification():
                 AddFriends(r[1])
         else:
             print(r[1] + " does not equal " + user + '\n')
+    '''
+
+
+def NotifyNewMessage():
+    """Notify the user of a new inbox message."""
+    user = globals.currentAccount.username
+    numMessages=0
+    for i in range(len(inbox.inboxAllAccounts)):
+        if (str(inbox.inboxAllAccounts[i].recipient.strip()) == str(globals.currentAccount.username) and inbox.inboxAllAccounts[i].isNew):
+            numMessages+=1
+    if(numMessages>0):
+        print('\nYou have received '+str(numMessages)+' message(s), check your inbox!\n')
+
+
+def NotifyFriendRequest():
+    """Notify the user of a new friend request."""
+    for r in requests:
+        if r[1] == user:
+            selection = input("You have a friend request from " + r[0] + ". Do you accept? (y/n) \n")
+            if selection.lower() == 'y':
+                AddFriends(r[1])
+        else:
+            print(r[1] + " does not equal " + user + '\n')
+
+
+def NotifyNewJob():
+    """Notify the user that a new job has been posted."""
+    names = []  # Read all notifications into memory
+    with open("docs\\Notifications\\NewJobs.txt", "r") as file:
+        while True:
+            line = file.readline().split()
+            if line:
+                if line[0] == "\n":  # Ignore newlines
+                    continue
+                names.append(line)
+            else:  # Terminate at end-of-file
+                break
+
+    # Alert the current user and remove their name from the list
+    #[line.pop(num) for line in names for num, name in enumerate(line) if name == globals.currentAccount.username]
+    for line in names:
+        for name in line:
+            if name == globals.currentAccount.username:
+                line.remove(name)
+                print(f"A new job <{line[0].replace('_', ' ')}> has been posted.")
+
+    # Delete job titles from the list if all users have been notified
+    #[names.remove(line) for line in reversed(names) if len(line) == 1 if line[0] != "\n"]
+    for line in reversed(names):
+        if len(line) == 1:
+            if line[0] != "\n":
+                names.remove(line)
+
+    # Write the updated list to file
+    with open("docs\\Notifications\\NewJobs.txt", "w") as file:
+        for line in names:
+            strLine = ' '.join(name for name in line)
+            file.write(strLine + "\n")
+
+
+def NotifyDeletedJob():
+    """Notify the user that a job they have applied for has been deleted."""
+    pass
+
+
+def NotifyNoApplications():
+    """Notify the user that they have not applied for a job in seven days."""
+    pass
 
 
 def SendRequest(secondUser):
@@ -585,10 +659,19 @@ def CreateJob():
     while (salary.isnumeric() == False):
         salary = input("Enter salary (do not include and non-numerical characters): ")
     salary = int(salary)
-    globals.jobs.append(Job(str(globals.currentAccount.username), title, description, employer, location, salary))
+    globals.jobs.append(Job(str(globals.currentAccount.username),
+        title.replace(' ', '_'),
+        description.replace(' ', '_'),
+        employer.replace(' ', '_'),
+        location.replace(' ', '_'),
+        salary))
     with open("Jobs.txt", "a+") as file1:
         file1.write(globals.jobs[len(globals.jobs) - 1].PrintWithCreator())  # PrintWithCreator function added in at the last minute
         # print(globals.jobs[len(globals.jobs) - 1].Info(), file=file1)
+    with open("docs\\Notifications\\NewJobs.txt", "a+") as file:  # Write new job notification for all users
+        file.write(title.replace("_", " ") + " ")
+        [file.write(student.username + " ") for student in globals.students]
+        file.write("\n")
 
 
 def DeleteJob(jobNum):
@@ -610,11 +693,15 @@ def SaveJob(jobNum):
 def DisplayJobDetails():
     # display all details for selected job listing
     global selection
-    print("Job listing: ", globals.jobs[selection - 1].Print())
+    print("-" * 10, " Job listing ", "-" * 10)
+    print(globals.jobs[selection - 1].DisplayListing())
 
     while True:
         apply = input(
-            "Enter [A] to apply to this job \n" + "Enter [S] to save this job \n" + "Enter [D] to delete this job \n" + f"Press [{globals.goBack.upper()}] to exit" + '\n')
+            "Enter [A] to apply to this job \n"
+                + "Enter [S] to save this job \n"
+                + "Enter [D] to delete this job \n"
+                + f"Press [{globals.goBack.upper()}] to exit" + '\n')
         apply = apply.lower()
         if (apply == 'a'):
             SubmitApplication()
@@ -632,7 +719,9 @@ def DisplayJobDetails():
 def DisplayJobs():
     # display job listing titles
     for i in range(len(globals.jobs)):
-        print("Job listing", i + 1, ": ", globals.jobs[i].title)
+        print("Job listing ", i + 1, ": ", globals.jobs[i].title.replace("_", " "), sep="")
+    #for num, job in enumerate(globals.jobs):
+        #print(f"Job listing: {job.title.replace("_", " ")}")
 
 
 def DisplayUsers():
@@ -866,6 +955,7 @@ def LearnSkill():
             continue
             # menus
 
+
 def ShowLoggedOutMenu():
     """Present menu options for when the user is logged out."""
     while True:
@@ -1097,7 +1187,7 @@ def mainMenu():
             break
 
         while globals.loggedIn:
-            FindNotification()
+            FindNotifications()
             choice = ShowLoggedInMenu()
             if (choice == globals.goBack):  # Break out and go back to the logged out menu
                 break

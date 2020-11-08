@@ -13,5 +13,8 @@ class Application:
 
     def Info(self):
         locale.setlocale(locale.LC_ALL, '')
-        return self.username +' \n' +  self.intendedJob.Info()  +' \n' +  self.gradDate  +' \n' +  self.startDate + ' \n' + self.coverLetter
-
+        return (self.username + '\n'
+            +  self.intendedJob.Info()  + '\n'
+            +  self.gradDate  + '\n'
+            +  self.startDate + '\n'
+            + self.coverLetter.replace("_", " "))
