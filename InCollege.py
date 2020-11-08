@@ -845,7 +845,6 @@ def DisplayJobDetails():
     # display all details for selected job listing
     global selection
     print("-" * 10, " Job listing ", "-" * 10)
-    print(globals.jobs[selection - 1].DisplayListing())
 
     while True:
         apply = input(
@@ -872,7 +871,7 @@ def DisplayJobs():
     for i in range(len(globals.jobs)):
         print("Job listing ", i + 1, ": ", globals.jobs[i].title.replace("_", " "), sep="")
     #for num, job in enumerate(globals.jobs):
-        #print(f"Job listing: {job.title.replace("_", " ")}")
+        #print(f"Job listing: {job.title.replace('_', ' ')}")
 
 
 def DisplayUsers():
@@ -940,12 +939,15 @@ def JobMenu():
                 if (selection <= len(globals.jobs)):
                     DisplayJobDetails()
         elif (selection == 'h'):
+            print("-" * 10, " Current applications ", "-" * 10)
             for i in range(len(globals.jobs)):
                 for j in range(len(globals.myApplications)):
                     if globals.jobs[i] == globals.myApplications[j].intendedJob:
                         print("You have already applied to job " + str(i) + ".\n")
+                        globals.ReturnPrompt()
                         break
         elif (selection == 'n'):
+            print("-" * 10, " Remaining jobs ", "-" * 10)
             applied = False
             for i in range(len(globals.jobs)):
                 for j in range(len(globals.myApplications)):
@@ -953,8 +955,9 @@ def JobMenu():
                         applied = True
                         break
                 if not applied:
-                    print("You have not yet applied to job " + str(i) + ".\n")
+                    print("You have not yet applied to job " + str(i+1) + ".")
                 applied = False
+            globals.ReturnPrompt()
         elif (selection == 's'):
             if len(globals.savedJobs) == 0:
                 print("You have not saved any saved jobs.")
