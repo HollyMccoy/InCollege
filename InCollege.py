@@ -671,7 +671,7 @@ def CreateJob():
 def CreateJobNotification(jobTitle):
     """Write a new job notification to file for all users."""
     with open("docs\\Notifications\\NewJobs.txt", "a+") as file:  # Write new job notification for all users
-        file.write(jobTitle.replace("_", " ") + " ")
+        file.write(jobTitle.replace(" ", "_") + " ")
         [file.write(student.username + " ") for student in globals.students]
         file.write("\n")
 
@@ -1216,6 +1216,7 @@ def mainMenu():
     LoadRequests()
     LoadJobs()
     LoadMessages()
+
     while True:  # Logged in and logged out menu loop
         while not globals.loggedIn:
             choice = ShowLoggedOutMenu()
