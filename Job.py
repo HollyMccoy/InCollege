@@ -20,7 +20,16 @@ class Job:
 
     def Print(self):  # Print job info excluding the creator of the job
         locale.setlocale(locale.LC_ALL, '')
-        return ' ' + self.title + ' ' + self.description + ' ' + self.employer + ' ' + self.location + ' ' +  str(self.salary) + '\n'
+        return self.title + ' ' + self.description + ' ' + self.employer + ' ' + self.location + ' ' +  str(self.salary) + '\n'
+
+    def Write(self):  # Write all job info to file; separate parameters with underscores
+        locale.setlocale(locale.LC_ALL, '')
+        return (self.creator + ' '
+            + self.title.replace(' ', '_') + ' '
+            + self.description.replace(' ', '_') + ' '
+            + self.employer.replace(' ', '_') + ' '
+            + self.location.replace(' ', '_') + ' '
+            + str(self.salary) + '\n')
 
     def DisplayListing(self):  # Print out job info in a user-readable format
         print(f"Title:       {self.title.replace('_', ' ')}" + "\n"

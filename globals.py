@@ -9,7 +9,8 @@ def Initialize():
     global students  # List of all saved accounts
     global jobs      # List of jobs
     global myApplications  # List of applications submitted by current user
-    global savedJobs #List of jobs that you have saved
+    global savedJobs  # List of jobs that you have saved
+    global deletedJobs  # List of jobs that have been deleted
 
     goBack = 'q'
     loggedIn = False
@@ -17,6 +18,7 @@ def Initialize():
     jobs = []
     myApplications = []
     savedJobs = []
+    deletedJobs = []
 
 
 def updateAccounts():
@@ -33,8 +35,9 @@ def ReturnPrompt():
     """Prompt the user to return to the previous menu after reaching a terminal menu option."""
     while True:
         selection = input(
-            '\n' + f"[{goBack.upper()}] Return to the previous menu" + '\n\n').lower()
+            '\n' + f"Press [{goBack.upper()}] to return to the previous menu" + '\n').lower()
         if selection == goBack:
+            print()
             break
 
 
