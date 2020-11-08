@@ -176,6 +176,27 @@ def ViewRequests():
         if r[0] == user:
             print(r[1])
 
+def createNewUserNotification(firstname, lastname):
+    newUserString = f"{firstname}, {lastname} has joined InCollege"
+    newUsers.append(newUserString)
+    UpdateNewUsers()
+
+
+def loadNewUsers():
+    with open("NewUsers.txt", "r") as newUserFile:
+        while True:
+            newUser = newUserFile.readline()
+            if newUser:
+                newUsers.append(newUser)    
+            else:
+                break
+    
+def ShowNewUsers():
+    if(len(newUsers) < 1):
+        return
+
+    for newUser in newUsers:
+            print(f'{newUser}\n')
 
 def FindNotification():
     """Informs the user of their most recent friend request, if any"""
@@ -192,7 +213,7 @@ def FindNotification():
         if r[1] == user:
             selection = input("You have a friend request from " + r[0] + ". Do you accept? (y/n) \n")
             if selection.lower() == 'y':
-                AddFriends(r[1])
+                AddFriends(r[0])
         else:
             print(r[1] + " does not equal " + user + '\n')
 
@@ -234,6 +255,14 @@ def UpdateRequests():
             newList = newList + r[0] + ' ' + r[1] + '\n'
         print("{}".format(newList), file=requestFile)
 
+def UpdateNewUsers():
+    with open("NewUsers.txt", "w") as newUserFile:
+        for newUser in newUsers:
+            newUser = newUser + '\n'
+        print("{}".format(newUser), file=newUserFile)
+
+def DeleteNewUsers():
+    with open("NewUsers.txt", "w"): pass
 
 def CreateFriendsList(newUser):
     newList = [newUser]
@@ -680,10 +709,14 @@ def DisplayUsers():
     else:
         print("\nI'm sorry, you are not friends with that person" + "\n")
 
+def ShowNumberJobsApplied():
+    numApplications = len(globals.myApplications)
+    print(f"You have currently applied for {numApplications} jobs/n")
 
 def JobMenu():
     # once job titles are displayed, this will allow navigation through jobs and applications
     global selection
+    ShowNumberJobsApplied()
     while True:
         DisplayJobs()
         selection = input(
@@ -801,6 +834,7 @@ def CreateAccount():
     with open("Logins.txt", "a+") as loginFile:
         print("{}".format(globals.students[len(globals.students) - 1].Print()), file=loginFile)
     CreateFriendsList(inputUser)
+    createNewUserNotification(inputFirstName, inputLastName)
     print('Account successfully created!')
 
     ## logins.truncate(0)   this is the erase file function in case accounts must be rewritten
@@ -1060,6 +1094,9 @@ def quitLogic():
     while (choice != 'q'):
         choice = input(f"\nPress [{globals.goBack.upper()}] to return to the previous menu:\n")
 
+def CreateProfileReminder():
+    if (globals.currentProfile == None):
+        print(f"Don't forget to create a profile\n")
 
 # include function to call from CreateAccount()  that would create account (change user and pass from "NULL") then add info to some .txt file for permanent storage
 # include function that upon starting InCollege app would open .txt file and create already existing accounts / add them to array
@@ -1073,12 +1110,14 @@ def mainMenu():
     global choice
     global friendsLists
     global requests
+    global newUsers
 
     globals.currentProfile = None
     logins = open('Logins.txt', 'a+')
     choice = 'd'
     friendsLists = []
     requests = []
+    newUsers = list()
 
     LoadAccounts()
     # this is where we at first should intercept and load text file accounts
@@ -1088,6 +1127,7 @@ def mainMenu():
     LoadRequests()
     LoadJobs()
     LoadMessages()
+    loadNewUsers()
     while True:  # Logged in and logged out menu loop
         while not globals.loggedIn:
             choice = ShowLoggedOutMenu()
@@ -1098,6 +1138,9 @@ def mainMenu():
 
         while globals.loggedIn:
             FindNotification()
+            ShowNewUsers()
+            DeleteNewUsers()
+            CreateProfileReminder()
             choice = ShowLoggedInMenu()
             if (choice == globals.goBack):  # Break out and go back to the logged out menu
                 break
