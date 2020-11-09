@@ -1,7 +1,2 @@
 q1 UniversityOfSouthFlorida Bachelor 4
-
 q2 UniversityOfFlorida Bachelor 3
-
-q3 UniversityOfCentralFlorida Bachelor 3
-
-q4 FloridaAtlanticUniversity Bachelor 3

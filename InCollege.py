@@ -8,6 +8,7 @@ from Application import Application
 import globals
 import sys, time
 from datetime import date
+from datetime import datetime
 from Inbox import Inbox
 
 inbox = Inbox()
@@ -125,8 +126,8 @@ def LoadJobs():
     listings = open('Jobs.txt', 'r')
     # each line in job.txt is a listing for a job opening.
     # openings = all the lines in job.txt which is stored in listings
-    Openings = listings.readlines()
-    for job in Openings:
+    openings = listings.readlines()
+    for job in openings:
         details = job.split()
         if len(details) == 6:
             globals.jobs.append(Job(details[0], details[1], details[2], details[3], details[4], details[5]))
@@ -139,12 +140,14 @@ def LoadFriendsList():
             friendsList = friendsListFile.readline()
             if friendsList:
                 friendsList = friendsList.split()
-                friendsLists.append(friendsList)    
+                friendsLists.append(friendsList)
             else:
                 break
 
 
 def LoadMyApplications():
+    """Load all job applications for the current user into memory."""
+    globals.myApplications.clear()  #  Flush all current applications from memory
     applicationsFile = open('Applications.txt', 'r')
     applicationsList = applicationsFile.readlines()
 
@@ -160,9 +163,28 @@ def LoadMyApplications():
             if (globals.jobs[i].description.strip() == applicationsList[a * 9 + 2].strip()):
                 globals.myApplications.append(
                     Application(applicationsList[a * 9 + 6].strip(), applicationsList[a * 9 + 7].strip(),
-                                applicationsList[a * 9 + 8].strip(), globals.jobs[i], globals.currentAccount.username))
-
+                        applicationsList[a * 9 + 8].strip(), globals.jobs[i], globals.currentAccount.username))
             i += 1
+
+
+def LoadSavedJobs():
+    """Load all saved jobs for the current account into memory."""
+    globals.savedJobs.clear()  # Flush all saved jobs currently loaded into memory
+    with open("SavedJobs.txt", "r") as file:
+        while True:
+            line = file.readline().split()
+            if line:
+                if len(line) == 7:
+                    if line[0] == globals.currentAccount.username:  # Current username
+                        globals.savedJobs.append(Job(line[1],  # Job poster's username
+                            line[2].replace('_', ' '),  # Job title
+                            line[3].replace('_', ' '),  # Job description
+                            line[4].replace('_', ' '),  # Job employer
+                            line[5].replace('_', ' '),  # Job location
+                            line[6]))  # Job salary
+            else:  # Terminate at end-of-file
+                break
+
 
 def LoadMessages():
     inbox.loadInbox()
@@ -177,24 +199,159 @@ def ViewRequests():
             print(r[1])
 
 
-def FindNotification():
-    """Informs the user of their most recent friend request, if any"""
+def FindNotifications():
+    """Informs the user of any pending notifications."""
+    NotifyNewMessage()
+    NotifyFriendRequest()
+    NotifyNewJob()
+    NotifyDeletedJob()
+    NotifyNoApplications()
+
+
+def NotifyNewMessage():
+    """Notify the user of a new inbox message."""
     user = globals.currentAccount.username
     numMessages=0
     for i in range(len(inbox.inboxAllAccounts)):
         if (str(inbox.inboxAllAccounts[i].recipient.strip()) == str(globals.currentAccount.username) and inbox.inboxAllAccounts[i].isNew):
             numMessages+=1
     if(numMessages>0):
-        print('\nYou have recieved '+str(numMessages)+' message(s), check your inbox!\n')
+        print('\nYou have received '+str(numMessages)+' message(s), check your inbox!\n')
 
 
+def NotifyFriendRequest():
+    """Notify the user of a new friend request."""
     for r in requests:
         if r[1] == user:
             selection = input("You have a friend request from " + r[0] + ". Do you accept? (y/n) \n")
             if selection.lower() == 'y':
-                AddFriends(r[1])
+                AddFriends(r[0])
         else:
             print(r[1] + " does not equal " + user + '\n')
+
+
+def NotifyNewJob():
+    """Notify the user that a new job has been posted."""
+    notifications = []  # Read all notifications into memory
+    with open("docs\\Notifications\\NewJobs.txt", "r") as file:
+        while True:
+            line = file.readline().split()
+            if line:
+                if line[0] == "\n":  # Ignore newlines
+                    continue
+                notifications.append(line)
+            else:  # Terminate at end-of-file
+                break
+
+    # Alert the current user and remove their name from the list
+    #[line.pop(num) for line in lines for num, name in enumerate(line) if name == globals.currentAccount.username]
+    for line in notifications:
+        for name in line:
+            if name == globals.currentAccount.username:
+                line.remove(name)
+                print(f"A new job <{line[0].replace('_', ' ')}> has been posted.")
+
+    # Delete job titles from the list if all users have been notified
+    #[notifications.remove(line) for line in reversed(notifications) if len(line) == 1 if line[0] != "\n"]
+    for line in reversed(notifications):
+        if len(line) == 1:
+            if line[0] != "\n":
+                notifications.remove(line)
+
+    # Re-write the updated list to file
+    with open("docs\\Notifications\\NewJobs.txt", "w") as file:
+        for line in notifications:
+            strLine = ' '.join(name for name in line)
+            file.write(strLine + "\n")
+
+
+def NotifyDeletedJob():
+    """Notify the user that a job they have applied for has been deleted."""
+    notifications = []  # Read all notifications into memory
+    with open("docs\\Notifications\\DeletedJobs.txt", "r") as file:
+        while True:
+            line = file.readline().split()
+            if line:
+                if line[0] == "\n":  # Ignore newlines
+                    continue
+                notifications.append(line)
+            else:  # Terminate at end-of-file
+                break
+
+    # Alert the current user and delete the entry
+    for line in reversed(notifications):
+        if line[0] == globals.currentAccount.username:
+            print(f"A job that you applied for <{line[1]}> has been deleted.")
+            notifications.remove(line)
+
+    # Re-write the updated list to file
+    with open("docs\\Notifications\\DeletedJobs.txt", "w") as file:
+        for line in notifications:
+            strLine = ' '.join(name for name in line)
+            file.write(strLine + "\n")
+
+
+def NotifyNoApplications():
+    """Notify the user if they have not applied for a job in seven days."""
+    lastApplied = None
+    with open("docs\\Notifications\\ApplyTimes.txt", "r") as file:
+        while True:
+            line = file.readline().split()
+            if line:
+                if line[0] == globals.currentAccount.username:
+                    lastApplied = datetime.strptime(line[1], "%Y-%m-%d")  # Convert date string to datetime object (YYYY-MM-DD)
+            else:  # Terminate at end-of-file
+                break
+
+    diff = datetime.today() - lastApplied
+    daysBetween = diff.total_seconds() / 86400  # Convert seconds to days
+    if daysBetween > 7:
+        print("Remember - you're going to want to have a job when you graduate." + "\n"
+            + "Make sure that you start to apply for jobs today!" + "\n")
+
+
+def createNewUserNotification(firstname, lastname):
+    newUserString = f"{firstname} {lastname} has joined InCollege"
+    newUsers.append(newUserString)
+    UpdateNewUsers()
+
+
+def LoadNewUsers():
+    with open("NewUsers.txt", "r") as newUserFile:
+        while True:
+            newUser = newUserFile.readline()
+            if newUser:
+                newUsers.append(newUser)
+            else:
+                break
+
+
+def ShowNewUsers():
+    if(len(newUsers) < 1):
+        return
+    for newUser in newUsers:
+        print(f'{newUser}')
+
+
+def UpdateNewUsers():
+    with open("NewUsers.txt", "w") as newUserFile:
+        for newUser in newUsers:
+            newUser = newUser + '\n'
+        print("{}".format(newUser), file=newUserFile)
+
+
+def DeleteNewUsers():
+    with open("NewUsers.txt", "w"): pass
+
+
+def ShowNumberJobsApplied():
+    numApplications = len(globals.myApplications)
+    print(f"You have currently applied for {numApplications} job(s)\n")
+
+
+def CreateProfileReminder():
+    if (globals.currentProfile == None):
+        print(f"Don't forget to create a profile\n")
 
 
 def SendRequest(secondUser):
@@ -585,41 +742,165 @@ def CreateJob():
     while (salary.isnumeric() == False):
         salary = input("Enter salary (do not include and non-numerical characters): ")
     salary = int(salary)
-    globals.jobs.append(Job(str(globals.currentAccount.username), title, description, employer, location, salary))
+    globals.jobs.append(Job(str(globals.currentAccount.username),
+        title.replace(' ', '_'),
+        description.replace(' ', '_'),
+        employer.replace(' ', '_'),
+        location.replace(' ', '_'),
+        salary))
     with open("Jobs.txt", "a+") as file1:
         file1.write(globals.jobs[len(globals.jobs) - 1].PrintWithCreator())  # PrintWithCreator function added in at the last minute
         # print(globals.jobs[len(globals.jobs) - 1].Info(), file=file1)
+    CreateNewJobNotification(title)
+
+
+def CreateNewJobNotification(jobTitle):
+    """Write a new job notification to file for all users."""
+    with open("docs\\Notifications\\NewJobs.txt", "a+") as file:
+        file.write(jobTitle.replace(" ", "_") + " ")
+        [file.write(student.username + " ") for student in globals.students]
+        file.write("\n")
 
 
 def DeleteJob(jobNum):
-    globals.jobs.remove(globals.jobs[jobNum - 1])
-    with open("Jobs.txt", "r") as f:
-        lines = f.readlines()
-    with open("Jobs.txt", "w") as f:
-        for line in lines:
-            if line.strip("\n") != globals.jobs[jobNum - 1]:
-                f.write(line)
+    """Delete a job listing."""
+    jobNum -= 1  # Index offset
+    deletedJob = globals.jobs.pop(jobNum)
+    with open("Jobs.txt", "w") as file:
+        for job in globals.jobs:
+            file.write(job.Write())
+    DeleteJobApplications(deletedJob)  # Delete any current applications for this job
+    DeleteSavedJobs(deletedJob)  # Delete any saved entries for this job
+    CreateDeletedJobNotification(deletedJob)  # Notify relevant users of the deletion
+
+
+def DeleteJobApplications(deletedJob):
+    """Delete all current applications for the specified job."""
+    # Delete job application if it is found in memory
+    for app in reversed(globals.myApplications):  # Reverse iteration to avoid skipping elements after deletion
+        if app.intendedJob.title == deletedJob.title:
+            globals.myApplications.remove(app)
+
+    # Read all lines into memory
+    lines = []
+    with open("Applications.txt", "r") as file:
+        while True:
+            line = file.readline().rstrip()
+            if line:
+                if line[0] == "\n":  # Ignore newlines
+                    continue
+                lines.append(line)
+            else:  # Terminate at end-of-file
+                break
+
+    # Each application is represented by nine lines;
+    # Convert and append every nine lines as a single string
+    jobApps = []
+    jobApp = ""
+    for lineNum, line in enumerate(lines, 1):
+        jobApp = jobApp + line + " "
+        if lineNum % 9 == 0:
+            jobApps.append(jobApp.split())
+            jobApp = ""
+
+    # Filter out the deleted job from the job applications
+    for app in reversed(jobApps):
+        if app[1] == deletedJob.title:
+            globals.deletedJobs.append(app[0] + " " + app[1])  # Flag the user and job title
+            jobApps.remove(app)
+
+    # Re-write all job applications to file
+    with open("Applications.txt", "w") as file:
+        for app in jobApps:
+            for parameter in app:
+                file.write(parameter + "\n")
+
+    # Redundant? Check this again later
+    LoadMyApplications()  # Reload all un-deleted job applications into memory
+
+
+def DeleteSavedJobs(deletedJob):
+    """Delete any saved entries for the specified job."""
+    # Delete the specified saved job if it is found in memory
+    for job in reversed(globals.savedJobs): # Reverse iteration to avoid skipping elements after deletion
+        if job == deletedJob:
+            globals.savedJobs.remove(job)
+
+    # Read all saved jobs from file to memory, excluding the deleted job
+    lines = []
+    with open("SavedJobs.txt", "r") as file:
+        while True:
+            line = file.readline().split()
+            if line:
+                if len(line) == 7:
+                    if line[2] != deletedJob.title:  # Skip jobs to be deleted
+                        lines.append(line)
+            else:  # Terminate at end-of-file
+                break
+
+    # Re-write all saved jobs from memory to file
+    with open("SavedJobs.txt", "w") as file:
+        for savedJob in lines:
+            for parameter in savedJob:
+                file.write(parameter + " ")
+            file.write("\n")
+
+
+def CreateDeletedJobNotification(deletedJob):
+    """Write a deleted job notification to file for relevant users."""
+    with open("docs\\Notifications\\DeletedJobs.txt", "a+") as file:
+        for job in globals.deletedJobs:  # Each job is represented as a user and job title separated by a space
+            file.write(job + "\n")
+        globals.deletedJobs.clear()
 
 
 def SaveJob(jobNum):
-    globals.savedJobs.append(globals.jobs[jobNum - 1])
-    with open("SavedJobs.txt", "w") as saveFile:
-        saveFile.write(globals.savedJobs[len(globals.jobs) - 1])
+    """Save a job to file for future reference."""
+    jobNum -= 1  # Index offset
+    lines = []  # Read all lines into memory
+    with open("SavedJobs.txt", "r") as file:
+        while True:
+            line = file.readline().split()
+            if line:
+                if line[0] == "\n":  # Ignore newlines
+                    continue
+                lines.append(line)
+            else:  # Terminate at end-of-file
+                break
+
+    duplicate = False  # Check to see if this job has already been saved
+    for line in lines:
+        if len(line) == 6:
+            if line[0] == globals.currentAccount.username:
+                if line[1] == globals.jobs[jobNum].title:
+                    duplicate = True
+                    print("\n" + "You have already saved this job." + "\n")
+                    break
+
+    if not duplicate:  # Append the saved job to file
+        with open("SavedJobs.txt", "a+") as file:
+            globals.savedJobs.append(globals.jobs[jobNum])
+            file.write(globals.currentAccount.username + ' '
+                + globals.jobs[jobNum].Write())
+            print("\n" + "Job saved!" + "\n")
 
 
 def DisplayJobDetails():
     # display all details for selected job listing
     global selection
-    print("Job listing: ", globals.jobs[selection - 1].Print())
+    print("-" * 10, " Job listing ", "-" * 10)
 
     while True:
         apply = input(
-            "Enter [A] to apply to this job \n" + "Enter [S] to save this job \n" + "Enter [D] to delete this job \n" + f"Press [{globals.goBack.upper()}] to exit" + '\n')
+            "Enter [A] to apply to this job \n"
+                + "Enter [S] to save this job \n"
+                + "Enter [D] to delete this job \n"
+                + f"Press [{globals.goBack.upper()}] to exit" + '\n')
         apply = apply.lower()
         if (apply == 'a'):
             SubmitApplication()
             return
-        elif (selection == 's'):
+        elif (apply == 's'):
             SaveJob(selection)
             return
         elif (apply == 'd'):
@@ -632,7 +913,9 @@ def DisplayJobDetails():
 def DisplayJobs():
     # display job listing titles
     for i in range(len(globals.jobs)):
-        print("Job listing", i + 1, ": ", globals.jobs[i].title)
+        print("Job listing ", i + 1, ": ", globals.jobs[i].title.replace("_", " "), sep="")
+    #for num, job in enumerate(globals.jobs):
+        #print(f"Job listing: {job.title.replace('_', ' ')}")
 
 
 def DisplayUsers():
@@ -684,6 +967,8 @@ def DisplayUsers():
 def JobMenu():
     # once job titles are displayed, this will allow navigation through jobs and applications
     global selection
+    ShowNumberJobsApplied()
+
     while True:
         DisplayJobs()
         selection = input(
@@ -700,12 +985,15 @@ def JobMenu():
                 if (selection <= len(globals.jobs)):
                     DisplayJobDetails()
         elif (selection == 'h'):
+            print("-" * 10, " Current applications ", "-" * 10)
             for i in range(len(globals.jobs)):
                 for j in range(len(globals.myApplications)):
                     if globals.jobs[i] == globals.myApplications[j].intendedJob:
-                        print("You have already applied to job " + str(i) + ".\n")
+                        print("You have already applied to job " + str(i+1) + ".\n")
                         break
+            globals.ReturnPrompt()
         elif (selection == 'n'):
+            print("-" * 10, " Remaining jobs ", "-" * 10)
             applied = False
             for i in range(len(globals.jobs)):
                 for j in range(len(globals.myApplications)):
@@ -713,11 +1001,17 @@ def JobMenu():
                         applied = True
                         break
                 if not applied:
-                    print("You have not yet applied to job " + str(i) + ".\n")
+                    print("You have not yet applied to job " + str(i+1) + ".")
                 applied = False
+            globals.ReturnPrompt()
         elif (selection == 's'):
+            if len(globals.savedJobs) == 0:
+                print("You have not saved any saved jobs.")
+            else:
+                print("-" * 10, " Saved jobs ", "-" * 10)
             for i in range(len(globals.savedJobs)):
-                print("Job " + i + " information: " + globals.savedJobs[i])
+                print(f"Job listing {i+1}: {globals.savedJobs[i].title.replace('_', ' ')}")
+            globals.ReturnPrompt()
         elif (selection == globals.goBack):
             return selection
 
@@ -739,6 +1033,8 @@ def SubmitApplication():
     with open("Applications.txt", "a+") as file1:
         print("{}".format(globals.myApplications[len(globals.myApplications) - 1].Info()), file=file1)
     print("Your application has been submitted!\n")
+
+    UpdateApplicationTime(globals.currentAccount.username)
     return
 
 
@@ -790,18 +1086,53 @@ def CreateAccount():
 
     # once username and password are deemed valid, place new user in .txt file and array
     globals.students.append(User(inputUser,
-                                 inputPass,
-                                 inputFirstName,
-                                 inputLastName,
-                                 accountPlus,  # Standard = false, Plus = true
-                                 emailAlerts=True,
-                                 textAlerts=True,
-                                 targetedAdvertising=True,
-                                 language="English"))
+        inputPass,
+        inputFirstName,
+        inputLastName,
+        accountPlus,  # Standard = false, Plus = true
+        emailAlerts=True,
+        textAlerts=True,
+        targetedAdvertising=True,
+        language="English"))
     with open("Logins.txt", "a+") as loginFile:
         print("{}".format(globals.students[len(globals.students) - 1].Print()), file=loginFile)
-    CreateFriendsList(inputUser)
     print('Account successfully created!')
+    CreateFriendsList(inputUser)
+    createNewUserNotification(inputFirstName, inputLastName)
+    UpdateApplicationTime(inputUser)
+
+
+def UpdateApplicationTime(username):
+    """Update the time since the current user last applied for a job."""
+    lines = []  # Read all lines into memory
+    today = date.today().strftime('%Y-%m-%d')  # string representation of current date (YYYY-MM-DD)
+    with open("docs\\Notifications\\ApplyTimes.txt", "r") as file:
+        while True:
+            line = file.readline().split()
+            if line:
+                if line[0] == "\n":  # Ignore newlines
+                    continue
+                lines.append(line)
+            else:  # Terminate at end-of-file
+                break
+
+    # Check for and update an existing user's application date
+    found = False
+    for line in lines:
+        if line[0] == username:
+            found = True
+            line[1] = today
+            break
+
+    # Create a new line for the current user at the current date
+    if not found:
+        lines.append([username, today])
+
+    # Write all lines to file
+    with open("docs\\Notifications\\ApplyTimes.txt", "w") as file:
+        for line in lines:
+            file.write(line[0] + " " + line[1] + "\n")
+
 
     ## logins.truncate(0)   this is the erase file function in case accounts must be rewritten
 def LoginToAccount():
@@ -819,12 +1150,13 @@ def LoginToAccount():
         # looks through each account, sends it straight to CheckLogin() and when one returns true it will set as current Account and inform user login was a success
         for account in globals.students:
             if (account.CheckLogin(inputUser, inputPass)):
-                print('You have successfully logged in')
+                print('\nYou have successfully logged in.' + '\n')
                 choice = 'ah'
                 globals.loggedIn = True
                 globals.currentAccount = account
                 globals.currentProfile = FindProfile(globals.currentAccount.username)
                 LoadMyApplications()
+                LoadSavedJobs()
                 return
 
         # Display an error message if the login fails
@@ -832,8 +1164,8 @@ def LoginToAccount():
         while True:
             choice = input(
                 '\n' + 'Incorrect username / password.' + '\n\n' \
-                                                          'Press [L] to try again.' + '\n' \
-                                                                                      f'Press [{globals.goBack.upper()}] to return to the previous menu.' + '\n')
+                'Press [L] to try again.' + '\n' \
+                f'Press [{globals.goBack.upper()}] to return to the previous menu.' + '\n')
             choice = choice.lower()
             if choice == globals.goBack:
                 return
@@ -865,6 +1197,7 @@ def LearnSkill():
         elif selection not in skills.keys():
             continue
             # menus
+
 
 def ShowLoggedOutMenu():
     """Present menu options for when the user is logged out."""
@@ -1073,21 +1406,25 @@ def mainMenu():
     global choice
     global friendsLists
     global requests
+    global newUsers
 
     globals.currentProfile = None
     logins = open('Logins.txt', 'a+')
     choice = 'd'
     friendsLists = []
     requests = []
+    newUsers = list()
 
-    LoadAccounts()
-    # this is where we at first should intercept and load text file accounts
+    # Reload text file data into memory before logging in
     SuccessStory()
+    LoadAccounts()
     LoadProfiles()
     LoadFriendsList()
     LoadRequests()
     LoadJobs()
     LoadMessages()
+    LoadNewUsers()
+
     while True:  # Logged in and logged out menu loop
         while not globals.loggedIn:
             choice = ShowLoggedOutMenu()
@@ -1097,7 +1434,10 @@ def mainMenu():
             break
 
         while globals.loggedIn:
-            FindNotification()
+            FindNotifications()
+            ShowNewUsers()
+            DeleteNewUsers()
+            CreateProfileReminder()
             choice = ShowLoggedInMenu()
             if (choice == globals.goBack):  # Break out and go back to the logged out menu
                 break
