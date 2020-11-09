@@ -225,7 +225,7 @@ def NotifyFriendRequest():
         if r[1] == user:
             selection = input("You have a friend request from " + r[0] + ". Do you accept? (y/n) \n")
             if selection.lower() == 'y':
-                AddFriends(r[1])
+                AddFriends(r[0])
         else:
             print(r[1] + " does not equal " + user + '\n')
 
@@ -308,6 +308,50 @@ def NotifyNoApplications():
     if daysBetween > 7:
         print("Remember - you're going to want to have a job when you graduate." + "\n"
             + "Make sure that you start to apply for jobs today!" + "\n")
+
+
+def createNewUserNotification(firstname, lastname):
+    newUserString = f"{firstname} {lastname} has joined InCollege"
+    newUsers.append(newUserString)
+    UpdateNewUsers()
+
+
+def LoadNewUsers():
+    with open("NewUsers.txt", "r") as newUserFile:
+        while True:
+            newUser = newUserFile.readline()
+            if newUser:
+                newUsers.append(newUser)
+            else:
+                break
+
+
+def ShowNewUsers():
+    if(len(newUsers) < 1):
+        return
+    for newUser in newUsers:
+        print(f'{newUser}')
+
+
+def UpdateNewUsers():
+    with open("NewUsers.txt", "w") as newUserFile:
+        for newUser in newUsers:
+            newUser = newUser + '\n'
+        print("{}".format(newUser), file=newUserFile)
+
+
+def DeleteNewUsers():
+    with open("NewUsers.txt", "w"): pass
+
+
+def ShowNumberJobsApplied():
+    numApplications = len(globals.myApplications)
+    print(f"You have currently applied for {numApplications} job(s)\n")
+
+
+def CreateProfileReminder():
+    if (globals.currentProfile == None):
+        print(f"Don't forget to create a profile\n")
 
 
 def SendRequest(secondUser):
@@ -923,6 +967,8 @@ def DisplayUsers():
 def JobMenu():
     # once job titles are displayed, this will allow navigation through jobs and applications
     global selection
+    ShowNumberJobsApplied()
+
     while True:
         DisplayJobs()
         selection = input(
@@ -1052,6 +1098,7 @@ def CreateAccount():
         print("{}".format(globals.students[len(globals.students) - 1].Print()), file=loginFile)
     print('Account successfully created!')
     CreateFriendsList(inputUser)
+    createNewUserNotification(inputFirstName, inputLastName)
     UpdateApplicationTime(inputUser)
 
 
@@ -1359,12 +1406,14 @@ def mainMenu():
     global choice
     global friendsLists
     global requests
+    global newUsers
 
     globals.currentProfile = None
     logins = open('Logins.txt', 'a+')
     choice = 'd'
     friendsLists = []
     requests = []
+    newUsers = list()
 
     # Reload text file data into memory before logging in
     SuccessStory()
@@ -1374,6 +1423,7 @@ def mainMenu():
     LoadRequests()
     LoadJobs()
     LoadMessages()
+    LoadNewUsers()
 
     while True:  # Logged in and logged out menu loop
         while not globals.loggedIn:
@@ -1385,6 +1435,9 @@ def mainMenu():
 
         while globals.loggedIn:
             FindNotifications()
+            ShowNewUsers()
+            DeleteNewUsers()
+            CreateProfileReminder()
             choice = ShowLoggedInMenu()
             if (choice == globals.goBack):  # Break out and go back to the logged out menu
                 break
