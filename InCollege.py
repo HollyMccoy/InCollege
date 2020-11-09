@@ -990,8 +990,8 @@ def JobMenu():
                 for j in range(len(globals.myApplications)):
                     if globals.jobs[i] == globals.myApplications[j].intendedJob:
                         print("You have already applied to job " + str(i) + ".\n")
-                        globals.ReturnPrompt()
                         break
+            globals.ReturnPrompt()
         elif (selection == 'n'):
             print("-" * 10, " Remaining jobs ", "-" * 10)
             applied = False
