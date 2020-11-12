@@ -1016,6 +1016,66 @@ def JobMenu():
             return selection
 
 
+def ShowTrainingTopics():
+    """Display menu for the 4 different training topics"""
+    selection = input(
+            "\n" + "Press [T] for Training and Education" + '\n' \
+            + "Press [I] for the IT Help Desk" + '\n' \
+            + "Press [B] for Business Analysis and Strategy" + '\n' \
+            + "Press [S] for Security" + '\n' \
+            + "Press [Q] to return to the previous menu" + '\n')
+    selection = selection.lower()
+    
+    if(selection == 't'):
+        ShowEducationMenu()
+    elif(selection == 'i'):
+        print('Coming Soon!')
+        return
+    elif(selection == 'b'):
+        ShowBusinessAnalysisMenu()
+    elif(selection == 's'):
+        print('Coming Soon!')
+        return
+    else:
+        return
+        
+
+def ShowEducationMenu():
+    """Menu for training and education"""
+    selection = input(
+            "\n" + "Select a training session" + '\n' \
+            + "Press [A] for Session A" + '\n' \
+            + "Press [B] for Session B" + '\n' \
+            + "Press [C] for Session C" + '\n' \
+            + "Press [D] for Session D" + '\n' \
+            + "Press [Q] to return to the previous menu" + '\n')
+    selection = selection.lower()
+    if(selection == 'a'):
+        ShowUnderConstruction()
+    elif(selection == 'b'):
+        ShowUnderConstruction()
+    elif(selection == 'c'):
+        ShowUnderConstruction()
+    elif(selection == 'd'):
+        ShowUnderConstruction()
+    else:
+        ShowTrainingTopics()
+
+def ShowBusinessAnalysisMenu():
+    """Menu for Business Analysis and Strategy"""
+    selection = input(
+            "\n" + "Select a course" + '\n' \
+            + "Press [H] for How to Use InCollege Learning" + '\n' \
+            + "Press [T] for Train the Trainer" + '\n' \
+            + "Press [G] for Gamification of Learning" + '\n' \
+            + "Press [Q] to return to the previous menu" + '\n' \
+            + "Not seeing what you're looking for? Sign in to see all 7,609 results." + '\n')
+    selection = selection.lower()
+    if(selection == 'h' or selection == 't' or selection == 'g'):
+        LoginToAccount()
+    else:
+        ShowTrainingTopics()
+
 def SubmitApplication():
     validDate = False
     global selection
@@ -1210,6 +1270,7 @@ def ShowLoggedOutMenu():
             + "Press [W] to watch a video" + '\n' \
             + "Press [U] for Useful Links" + '\n' \
             + "Press [I] to show InCollege important links" + '\n' \
+            + "Press [T] to show Training Topics" + '\n' \
             + f"Press [{globals.goBack.upper()}] to quit" + '\n')
         selection = selection.lower()
 
@@ -1230,7 +1291,9 @@ def ShowLoggedOutMenu():
             ShowUsefulLinks()
         elif (selection == 'i'):
             ImportantLinks.ShowMenu()
-
+        elif (selection == 't'):
+            ShowTrainingTopics()
+            return selection
         elif (selection == globals.goBack):  # Break out of the inner loop
             return selection
 
