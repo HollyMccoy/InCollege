@@ -166,7 +166,6 @@ def LoadMyApplications():
                         applicationsList[a * 9 + 8].strip(), globals.jobs[i], globals.currentAccount.username))
             i += 1
 
-
 def LoadSavedJobs():
     """Load all saved jobs for the current account into memory."""
     globals.savedJobs.clear()  # Flush all saved jobs currently loaded into memory
@@ -338,7 +337,6 @@ def UpdateNewUsers():
         for newUser in newUsers:
             newUser = newUser + '\n'
         print("{}".format(newUser), file=newUserFile)
-
 
 def DeleteNewUsers():
     with open("NewUsers.txt", "w"): pass
@@ -1330,6 +1328,7 @@ def ShowLoggedInMenu():
             + "Press [V] to view friends list" + '\n' \
             + "Press [E] to check your pending friend requests." + '\n' \
             + "Press [M] to open the messaging menu" + '\n' \
+            + "Press [C] to access InCollege Learning" + '\n' \
             + f"Press [{globals.goBack.upper()}] to log out" + '\n')
         selection = selection.lower()
 
@@ -1354,7 +1353,9 @@ def ShowLoggedInMenu():
         elif (selection == 'e'):
             ViewRequests()
         elif (selection == 'm'):
-           MessageingMenu()
+            MessageingMenu()
+        elif (selection == 'c'):
+            ShowInCollegeLearningMenu()
         elif (selection == globals.goBack):
             globals.loggedIn = False
             globals.myApplications.clear()
@@ -1378,6 +1379,103 @@ def MessageingMenu():
             return
 
         #quitLogic()
+
+def ShowInCollegeLearningMenu():
+    while True:
+        coursesTaken = "Completed Courses: "
+        atleastOneCourse = False
+        
+        for course in completedCourses:
+            if (globals.currentAccount.username in course or f"{globals.currentAccount.username}\n" in course):
+                coursesTaken += f"{course[0]}, "
+                atleastOneCourse = True
+
+        if(not atleastOneCourse):
+            coursesTaken = "You have not taken any courses yet.\n"
+
+        selection = input(
+            "\n" + "Select a course:" + '\n' \
+            + "Press [H] for How to Use InCollege Learning" + '\n' \
+            + "Press [T] for Train the Trainer" + '\n' \
+            + "Press [G] for Gamification of Learning" + '\n' \
+            + "Press [U] for Understanding the Architectural Design Process" + '\n' \
+            + "Press [P] for Product Management Simplified" + '\n' \
+            + f"Press [{globals.goBack.upper()}] to return to the previous menu" + '\n'\
+            + coursesTaken + '\n')
+
+        selection = selection.lower()
+        takeAgain = False
+
+        if(selection == 'h'):
+            if (globals.currentAccount.username in completedCourses[0] 
+            or f"{globals.currentAccount.username}\n" in completedCourses[0]):
+                takeAgain = ShowAreYouSureMenu()
+                if(takeAgain):
+                    print('\nYou have now completed this training again!\n')
+                    continue
+                else:
+                    continue
+
+            completedCourses[0].append(f"{globals.currentAccount.username}")
+            UpdateCompletedCourses()
+            print('\nYou have now completed this training!\n')
+
+        elif(selection == 't'):
+            if (globals.currentAccount.username in completedCourses[1] or 
+            f"{globals.currentAccount.username}\n" in completedCourses[1]):
+                takeAgain = ShowAreYouSureMenu()
+                if(takeAgain):
+                    print('\nYou have now completed this training again!\n')
+                    continue
+                else:
+                    continue
+
+            completedCourses[1].append(globals.currentAccount.username)
+            UpdateCompletedCourses()
+            print('\nYou have now completed this training!\n')
+
+        elif (selection == globals.goBack):
+                return
+
+def ShowAreYouSureMenu():
+    while True:
+        selection = input(
+            "\n" + "You have already taken this course, do you want to take it again?" + '\n' \
+            + "Press [Y] for Yes" + '\n' \
+            + "Press [N] for No" + '\n' \
+            + f"Press [{globals.goBack.upper()}] to return to the previous menu" + '\n')
+
+        selection = selection.lower()
+        if(selection == 'y'):
+            return True
+        elif (selection == globals.goBack or selection == 'n'):
+                return False
+
+def LoadCompletedCourses():
+    with open("CompletedCourses.txt", "r") as file:
+        lines = file.readlines()
+        for line in lines:
+            listLine = line.split(",")
+            completedCourses.append(listLine)
+            print(f"{listLine[0]}, {listLine[1]}")
+    for course in completedCourses:
+        print(f"{course}")
+        
+
+def UpdateCompletedCourses():
+    with open("CompletedCourses.txt", "w") as coursesFile:
+        for courseList in completedCourses:
+            courseGraduates = ""
+            count = 1
+            for courseGraduate in courseList:
+                courseGraduate = courseGraduate.strip("\n")
+                if(count == len(courseList)):
+                    courseGraduates += f"{courseGraduate}"
+                else:
+                    courseGraduates += f"{courseGraduate},"
+                count += 1
+            print(f"{courseGraduates}")
+            print(f"{courseGraduates}", file=coursesFile)
 
 def ShowUsefulLinks():
     global choice
@@ -1470,6 +1568,7 @@ def mainMenu():
     global friendsLists
     global requests
     global newUsers
+    global completedCourses
 
     globals.currentProfile = None
     logins = open('Logins.txt', 'a+')
@@ -1477,6 +1576,7 @@ def mainMenu():
     friendsLists = []
     requests = []
     newUsers = list()
+    completedCourses = list()
 
     # Reload text file data into memory before logging in
     SuccessStory()
@@ -1487,6 +1587,9 @@ def mainMenu():
     LoadJobs()
     LoadMessages()
     LoadNewUsers()
+    print("TEST1")
+    LoadCompletedCourses()
+    print("TEST2")
 
     while True:  # Logged in and logged out menu loop
         while not globals.loggedIn:
