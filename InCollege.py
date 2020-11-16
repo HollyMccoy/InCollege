@@ -1499,9 +1499,9 @@ def LoadCompletedCourses():
         for line in lines:
             listLine = line.split(",")
             completedCourses.append(listLine)
-            print(f"{listLine[0]}, {listLine[1]}")
-    for course in completedCourses:
-        print(f"{course}")
+            #print(f"{listLine[0]}, {listLine[1]}")
+    #for course in completedCourses:
+        #print(f"{course}")
         
 
 def UpdateCompletedCourses():
@@ -1516,7 +1516,7 @@ def UpdateCompletedCourses():
                 else:
                     courseGraduates += f"{courseGraduate},"
                 count += 1
-            print(f"{courseGraduates}")
+            # print(f"{courseGraduates}")
             print(f"{courseGraduates}", file=coursesFile)
 
 def ShowUsefulLinks():
@@ -1629,9 +1629,7 @@ def mainMenu():
     LoadJobs()
     LoadMessages()
     LoadNewUsers()
-    print("TEST1")
     LoadCompletedCourses()
-    print("TEST2")
 
     while True:  # Logged in and logged out menu loop
         while not globals.loggedIn:
