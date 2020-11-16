@@ -1433,6 +1433,48 @@ def ShowInCollegeLearningMenu():
             completedCourses[1].append(globals.currentAccount.username)
             UpdateCompletedCourses()
             print('\nYou have now completed this training!\n')
+        
+        elif(selection == 'g'):
+            if (globals.currentAccount.username in completedCourses[2] or 
+            f"{globals.currentAccount.username}\n" in completedCourses[2]):
+                takeAgain = ShowAreYouSureMenu()
+                if(takeAgain):
+                    print('\nYou have now completed this training again!\n')
+                    continue
+                else:
+                    continue
+
+            completedCourses[2].append(globals.currentAccount.username)
+            UpdateCompletedCourses()
+            print('\nYou have now completed this training!\n')
+            
+        elif(selection == 'u'):
+            if (globals.currentAccount.username in completedCourses[3] or 
+            f"{globals.currentAccount.username}\n" in completedCourses[3]):
+                takeAgain = ShowAreYouSureMenu()
+                if(takeAgain):
+                    print('\nYou have now completed this training again!\n')
+                    continue
+                else:
+                    continue
+
+            completedCourses[3].append(globals.currentAccount.username)
+            UpdateCompletedCourses()
+            print('\nYou have now completed this training!\n')
+            
+        elif(selection == 'p'):
+            if (globals.currentAccount.username in completedCourses[4] or 
+            f"{globals.currentAccount.username}\n" in completedCourses[4]):
+                takeAgain = ShowAreYouSureMenu()
+                if(takeAgain):
+                    print('\nYou have now completed this training again!\n')
+                    continue
+                else:
+                    continue
+
+            completedCourses[4].append(globals.currentAccount.username)
+            UpdateCompletedCourses()
+            print('\nYou have now completed this training!\n')
 
         elif (selection == globals.goBack):
                 return
