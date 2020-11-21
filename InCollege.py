@@ -10,6 +10,7 @@ import sys, time
 from datetime import date
 from datetime import datetime
 from Inbox import Inbox
+from os import path
 
 inbox = Inbox()
 
@@ -1601,6 +1602,83 @@ def quitLogic():
 # include function that upon starting InCollege app would open .txt file and create already existing accounts / add them to array
 # need function to check if any account spots are left
 # def FreeSpace ():
+
+def InputAccountsAPI():
+    if not path.exists("studentAccounts.txt"):
+        return
+    
+    i = 0
+    usernames = []
+    passwords = []
+    uFlag = False
+    accountFile = open('studentAccounts.txt', 'r')
+    lines = accountFile.readlines()
+    for line in lines:
+        if line == "=====":
+            uFlag = False
+            continue
+        elif not uFlag:
+            usernames.append(line)
+            uFlag = True
+            continue
+        else:
+            passwords.append(line)
+            uFlag = False
+    
+    while(i < len(usernames) and i < 10):
+        globals.students.append(User(usernames[i],
+        passwords[i],
+        "firstname",
+        "lastname",
+        False,  # Standard = false, Plus = true
+        emailAlerts=True,
+        textAlerts=True,
+        targetedAdvertising=True,
+        language="English"))
+    accountFile.close()
+
+def InputJobsAPI():
+    if not path.exists("newJobs.txt"):
+        return
+    
+    i=0
+    titles = []
+    descriptions = []
+    employers = []
+    locations = []
+    salaries = []
+    
+    jobFile = open('newJobs.txt', 'r')
+    for i in range(10):
+        desc = ""
+        x = jobFile.readline()
+        if x == "":
+            break
+        titles.append(x)
+        while True:
+            x = jobsFile.readline()
+            if x != "&&&":
+                desc += x
+                desc += '\n'
+            else:
+                break
+        descriptions.append(desc)
+        employers.append(jobFile.readline())
+        locations.append(jobFile.readline())
+        salaries.append(int(jobFile.readline()))
+        jobFile.readline()
+    
+    jobFile.close()
+    
+    for i in range(len(titles)):
+        globals.jobs.append(Job("N/A", 
+        titles[i],
+        descriptions[i],
+        employers[i],
+        locations[i],
+        salaries[i]))
+    
+    
 def mainMenu():
     """Show the main menus to the user."""
     # create array of size max # of students
