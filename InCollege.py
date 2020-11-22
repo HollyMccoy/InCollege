@@ -221,6 +221,7 @@ def NotifyNewMessage():
 
 def NotifyFriendRequest():
     """Notify the user of a new friend request."""
+    user = globals.currentAccount.username
     for r in requests:
         if r[1] == user:
             selection = input("You have a friend request from " + r[0] + ". Do you accept? (y/n) \n")
@@ -637,6 +638,7 @@ def CreateProfile():
     globals.currentProfile = Profile(globals.currentAccount.username, firstName, lastName, title, major, schoolName,
                                      bio, experience, education)
     globals.profiles.append(globals.currentProfile)
+    OutputProfilesAPI(globals.currentProfile)
 
     with open("Profiles.txt", "a+") as file3:
         print("{}".format(globals.currentProfile.Write()), file=file3, end="")
@@ -683,6 +685,7 @@ def SearchProfiles():
             else:
                 while (selection > len(result)):
                     selection = input("Number not on the list, please try again (or 0 to exit): ")
+                    userName = result[int(selection) - 1].username
                     SendRequest(userName)
 
 
@@ -1156,6 +1159,7 @@ def CreateAccount():
     with open("Logins.txt", "a+") as loginFile:
         print("{}".format(globals.students[len(globals.students) - 1].Print()), file=loginFile)
     print('Account successfully created!')
+    OutputUsersAPI(globals.students[len(globals.students) - 1])
     CreateFriendsList(inputUser)
     createNewUserNotification(inputFirstName, inputLastName)
     UpdateApplicationTime(inputUser)
@@ -1604,43 +1608,37 @@ def quitLogic():
 # def FreeSpace ():
 
 def InputAccountsAPI():
+    if not path.exists("studentAccounts.txt"):
+        return
+    
     i = 0
     usernames = []
     passwords = []
-    firstnames = []
-    lastnames = []
-    plus = []
     uFlag = False
     accountFile = open('studentAccounts.txt', 'r')
-    #lines = accountFile.readlines()
-    lines = accountFile.read()
-    credentials = lines.split("=====\n")
-    
-    for c in credentials:
-        c = c.split('\n')
-        usernames.append(c[0])
-        passwords.append(c[1])
-        firstnames.append(c[2])
-        lastnames.append(c[3])
-        if(c[4] == "True"):
-            plus.append(True)
+    lines = accountFile.readlines()
+    for line in lines:
+        if line == "=====":
+            uFlag = False
+            continue
+        elif not uFlag:
+            usernames.append(line)
+            uFlag = True
+            continue
         else:
-            plus.append(False)
+            passwords.append(line)
+            uFlag = False
     
-    while(i < len(usernames)):
-        if len(globals.students) >= 10:
-            break
-        else:
-            globals.students.append(User(usernames[i],
-            passwords[i],
-            firstnames[i],
-            lastnames[i],
-            plus[i],  # Standard = false, Plus = true
-            emailAlerts=True,
-            textAlerts=True,
-            targetedAdvertising=True,
-            language="English"))
-            i += 1
+    while(i < len(usernames) and i < 10):
+        globals.students.append(User(usernames[i],
+        passwords[i],
+        "firstname",
+        "lastname",
+        False,  # Standard = false, Plus = true
+        emailAlerts=True,
+        textAlerts=True,
+        targetedAdvertising=True,
+        language="English"))
     accountFile.close()
 
 def InputJobsAPI():
@@ -1655,36 +1653,59 @@ def InputJobsAPI():
     salaries = []
     
     jobFile = open('newJobs.txt', 'r')
-    lines = jobFile.read()
-    joblist = lines.split("=====\n")
-    for j in joblist:
-        d = ""
-        j = j.split("&&&")
-        j1 = j[0].split("\n")
-        j2 = j[1].split("\n")
-        titles.append(j1[0])
-        
-        for i in range(1,len(j1)):
-            d += (j1[i])
-            d += ("\n")
-        descriptions.append(d)
-        employers.append(j2[1])
-        locations.append(j2[2])
-        salaries.append(int(j2[3]))
-            
+    for i in range(10):
+        desc = ""
+        x = jobFile.readline()
+        if x == "":
+            break
+        titles.append(x)
+        while True:
+            x = jobFile.readline()
+            if x != "&&&":
+                desc += x
+                desc += '\n'
+            else:
+                break
+        descriptions.append(desc)
+        employers.append(jobFile.readline())
+        locations.append(jobFile.readline())
+        salaries.append(int(jobFile.readline()))
+        jobFile.readline()
+    
     jobFile.close()
     
     for i in range(len(titles)):
-        if len(globals.jobs) >= 10:
-            break
-        else:
-            globals.jobs.append(Job("N/A", 
-            titles[i],
-            descriptions[i],
-            employers[i],
-            locations[i],
-            salaries[i]))
-    
+        globals.jobs.append(Job("N/A", 
+        titles[i],
+        descriptions[i],
+        employers[i],
+        locations[i],
+        salaries[i]))
+
+def OutputProfilesAPI(profileInfo):
+    if not path.exists('MyCollege_profiles.txt'):
+        return
+
+    username = profileInfo.username
+    title = profileInfo.title
+    major = profileInfo.major
+    universities = profileInfo.schoolName
+    about = profileInfo.bio
+    experience = profileInfo.experience
+    education = profileInfo.education
+    profileFile = open('MyCollege_profiles.txt', 'r+')
+
+    profileFile.append(username, title, major, universities, about, experience, education, "/n============================================================/n")
+
+def OutputUsersAPI(userAccount):
+    username = userAccount.username
+    plus = userAccount.accountPlus
+    if plus == True:
+        plusResult = "plus"
+    else:
+        plusResult = "standard"
+    userFile = open('MyCollege_users.txt', 'r+')
+    userFile.append(username, plusResult)
     
 def mainMenu():
     """Show the main menus to the user."""
@@ -1705,23 +1726,6 @@ def mainMenu():
     newUsers = list()
     completedCourses = list()
 
-    if path.exists("studentAccounts.txt"):
-        print("Student accounts API found")
-        InputAccountsAPI()
-        for i in range(len(globals.students)):
-            print(str(i+1) + ".")
-            print(globals.students[i].Print())
-    if path.exists("newJobs.txt"):
-        print("New jobs API found")
-        InputJobsAPI()
-        for i in range(len(globals.jobs)):
-            print("Title: " + globals.jobs[i].title)
-            print("Description: " + globals.jobs[i].description)
-            print("Employer: " + globals.jobs[i].employer)
-            print("Location: " + globals.jobs[i].location)
-            print("Salary: " + str(globals.jobs[i].salary))
-            print("=====")
-    
     # Reload text file data into memory before logging in
     SuccessStory()
     LoadAccounts()
