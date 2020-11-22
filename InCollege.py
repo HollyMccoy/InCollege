@@ -1607,20 +1607,25 @@ def InputAccountsAPI():
     i = 0
     usernames = []
     passwords = []
+    firstnames = []
+    lastnames = []
+    plus = []
     uFlag = False
     accountFile = open('studentAccounts.txt', 'r')
-    lines = accountFile.readlines()
-    for line in lines:
-        if line[0 : 5] == "=====":
-            uFlag = False
-            continue
-        elif not uFlag:
-            usernames.append(line)
-            uFlag = True
-            continue
+    #lines = accountFile.readlines()
+    lines = accountFile.read()
+    credentials = lines.split("=====\n")
+    
+    for c in credentials:
+        c = c.split('\n')
+        usernames.append(c[0])
+        passwords.append(c[1])
+        firstnames.append(c[2])
+        lastnames.append(c[3])
+        if(c[4] == "True"):
+            plus.append(True)
         else:
-            passwords.append(line)
-            uFlag = False
+            plus.append(False)
     
     while(i < len(usernames)):
         if len(globals.students) >= 10:
@@ -1628,9 +1633,9 @@ def InputAccountsAPI():
         else:
             globals.students.append(User(usernames[i],
             passwords[i],
-            "firstname",
-            "lastname",
-            False,  # Standard = false, Plus = true
+            firstnames[i],
+            lastnames[i],
+            plus[i],  # Standard = false, Plus = true
             emailAlerts=True,
             textAlerts=True,
             targetedAdvertising=True,
@@ -1650,25 +1655,23 @@ def InputJobsAPI():
     salaries = []
     
     jobFile = open('newJobs.txt', 'r')
-    for i in range(10):
-        desc = ""
-        x = jobFile.readline()
-        if x == "":
-            break
-        titles.append(x)
-        while True:
-            x = jobFile.readline()
-            if x[0 : 3] != "&&&":
-                desc += x
-                desc += '\n'
-            else:
-                break
-        descriptions.append(desc)
-        employers.append(jobFile.readline())
-        locations.append(jobFile.readline())
-        salaries.append(int(jobFile.readline()))
-        jobFile.readline()
-    
+    lines = jobFile.read()
+    joblist = lines.split("=====\n")
+    for j in joblist:
+        d = ""
+        j = j.split("&&&")
+        j1 = j[0].split("\n")
+        j2 = j[1].split("\n")
+        titles.append(j1[0])
+        
+        for i in range(1,len(j1)):
+            d += (j1[i])
+            d += ("\n")
+        descriptions.append(d)
+        employers.append(j2[1])
+        locations.append(j2[2])
+        salaries.append(int(j2[3]))
+            
     jobFile.close()
     
     for i in range(len(titles)):
@@ -1701,15 +1704,13 @@ def mainMenu():
     requests = []
     newUsers = list()
     completedCourses = list()
-    
-    #Print results from input API
+
     if path.exists("studentAccounts.txt"):
         print("Student accounts API found")
         InputAccountsAPI()
         for i in range(len(globals.students)):
-            print(str(i) + ".")
-            print(globals.students[i].username)
-            print(globals.students[i].password)
+            print(str(i+1) + ".")
+            print(globals.students[i].Print())
     if path.exists("newJobs.txt"):
         print("New jobs API found")
         InputJobsAPI()
