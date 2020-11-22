@@ -1604,9 +1604,6 @@ def quitLogic():
 # def FreeSpace ():
 
 def InputAccountsAPI():
-    if not path.exists("studentAccounts.txt"):
-        return
-    
     i = 0
     usernames = []
     passwords = []
@@ -1614,7 +1611,7 @@ def InputAccountsAPI():
     accountFile = open('studentAccounts.txt', 'r')
     lines = accountFile.readlines()
     for line in lines:
-        if line == "=====":
+        if line[0 : 5] == "=====":
             uFlag = False
             continue
         elif not uFlag:
@@ -1625,16 +1622,20 @@ def InputAccountsAPI():
             passwords.append(line)
             uFlag = False
     
-    while(i < len(usernames) and i < 10):
-        globals.students.append(User(usernames[i],
-        passwords[i],
-        "firstname",
-        "lastname",
-        False,  # Standard = false, Plus = true
-        emailAlerts=True,
-        textAlerts=True,
-        targetedAdvertising=True,
-        language="English"))
+    while(i < len(usernames)):
+        if len(globals.students) >= 10:
+            break
+        else:
+            globals.students.append(User(usernames[i],
+            passwords[i],
+            "firstname",
+            "lastname",
+            False,  # Standard = false, Plus = true
+            emailAlerts=True,
+            textAlerts=True,
+            targetedAdvertising=True,
+            language="English"))
+            i += 1
     accountFile.close()
 
 def InputJobsAPI():
@@ -1656,8 +1657,8 @@ def InputJobsAPI():
             break
         titles.append(x)
         while True:
-            x = jobsFile.readline()
-            if x != "&&&":
+            x = jobFile.readline()
+            if x[0 : 3] != "&&&":
                 desc += x
                 desc += '\n'
             else:
@@ -1671,12 +1672,15 @@ def InputJobsAPI():
     jobFile.close()
     
     for i in range(len(titles)):
-        globals.jobs.append(Job("N/A", 
-        titles[i],
-        descriptions[i],
-        employers[i],
-        locations[i],
-        salaries[i]))
+        if len(globals.jobs) >= 10:
+            break
+        else:
+            globals.jobs.append(Job("N/A", 
+            titles[i],
+            descriptions[i],
+            employers[i],
+            locations[i],
+            salaries[i]))
     
     
 def mainMenu():
@@ -1697,7 +1701,26 @@ def mainMenu():
     requests = []
     newUsers = list()
     completedCourses = list()
-
+    
+    #Print results from input API
+    if path.exists("studentAccounts.txt"):
+        print("Student accounts API found")
+        InputAccountsAPI()
+        for i in range(len(globals.students)):
+            print(str(i) + ".")
+            print(globals.students[i].username)
+            print(globals.students[i].password)
+    if path.exists("newJobs.txt"):
+        print("New jobs API found")
+        InputJobsAPI()
+        for i in range(len(globals.jobs)):
+            print("Title: " + globals.jobs[i].title)
+            print("Description: " + globals.jobs[i].description)
+            print("Employer: " + globals.jobs[i].employer)
+            print("Location: " + globals.jobs[i].location)
+            print("Salary: " + str(globals.jobs[i].salary))
+            print("=====")
+    
     # Reload text file data into memory before logging in
     SuccessStory()
     LoadAccounts()
