@@ -1,5 +1,5 @@
 How to Use InCollege Learning,q1
-Train the Trainer,q2
+Train the Trainer,q2,q1
 Gamification of Learning,q1
 Understanding the Architectural Design Process,q1
-Product Management Simplified,q1
+Product Management Simplified,q1,q4

@@ -1,16 +1,15 @@
-# include User.py
+from os import path
 from Job import Job, Experience
 from User import User
 from Profile import Profile
 from School import School
 from menus import ImportantLinks
 from Application import Application
-import globals
-import sys, time
 from datetime import date
 from datetime import datetime
 from Inbox import Inbox
-from os import path
+import globals
+import sys, time
 
 inbox = Inbox()
 
@@ -233,7 +232,7 @@ def NotifyFriendRequest():
 def NotifyNewJob():
     """Notify the user that a new job has been posted."""
     notifications = []  # Read all notifications into memory
-    with open("docs\\Notifications\\NewJobs.txt", "r") as file:
+    with open("docs\\Notifications\\NewJobNotifications.txt", "r") as file:
         while True:
             line = file.readline().split()
             if line:
@@ -259,7 +258,7 @@ def NotifyNewJob():
                 notifications.remove(line)
 
     # Re-write the updated list to file
-    with open("docs\\Notifications\\NewJobs.txt", "w") as file:
+    with open("docs\\Notifications\\NewJobNotifications.txt", "w") as file:
         for line in notifications:
             strLine = ' '.join(name for name in line)
             file.write(strLine + "\n")
@@ -637,7 +636,6 @@ def CreateProfile():
     globals.currentProfile = Profile(globals.currentAccount.username, firstName, lastName, title, major, schoolName,
                                      bio, experience, education)
     globals.profiles.append(globals.currentProfile)
-    OutputProfilesAPI(globals.currentProfile)
 
     with open("Profiles.txt", "a+") as file3:
         print("{}".format(globals.currentProfile.Write()), file=file3, end="")
@@ -752,12 +750,11 @@ def CreateJob():
         file1.write(globals.jobs[len(globals.jobs) - 1].PrintWithCreator())  # PrintWithCreator function added in at the last minute
         # print(globals.jobs[len(globals.jobs) - 1].Info(), file=file1)
     CreateNewJobNotification(title)
-    OutputJobsAPI()
 
 
 def CreateNewJobNotification(jobTitle):
     """Write a new job notification to file for all users."""
-    with open("docs\\Notifications\\NewJobs.txt", "a+") as file:
+    with open("docs\\Notifications\\NewJobNotifications.txt", "a+") as file:
         file.write(jobTitle.replace(" ", "_") + " ")
         [file.write(student.username + " ") for student in globals.students]
         file.write("\n")
@@ -773,7 +770,6 @@ def DeleteJob(jobNum):
     DeleteJobApplications(deletedJob)  # Delete any current applications for this job
     DeleteSavedJobs(deletedJob)  # Delete any saved entries for this job
     CreateDeletedJobNotification(deletedJob)  # Notify relevant users of the deletion
-    OutputJobsAPI()
 
 
 def DeleteJobApplications(deletedJob):
@@ -885,7 +881,6 @@ def SaveJob(jobNum):
             file.write(globals.currentAccount.username + ' '
                 + globals.jobs[jobNum].Write())
             print("\n" + "Job saved!" + "\n")
-    OutputSavedJobsAPI()
 
 
 def DisplayJobDetails():
@@ -1028,7 +1023,7 @@ def ShowTrainingTopics():
             + "Press [S] for Security" + '\n' \
             + "Press [Q] to return to the previous menu" + '\n')
     selection = selection.lower()
-    
+
     if(selection == 't'):
         ShowEducationMenu()
     elif(selection == 'i'):
@@ -1041,7 +1036,7 @@ def ShowTrainingTopics():
         return
     else:
         return
-        
+
 
 def ShowEducationMenu():
     """Menu for training and education"""
@@ -1098,7 +1093,6 @@ def SubmitApplication():
     print("Your application has been submitted!\n")
 
     UpdateApplicationTime(globals.currentAccount.username)
-    OutputAppliedJobsAPI()
     return
 
 
@@ -1161,7 +1155,6 @@ def CreateAccount():
     with open("Logins.txt", "a+") as loginFile:
         print("{}".format(globals.students[len(globals.students) - 1].Print()), file=loginFile)
     print('Account successfully created!')
-    OutputUsersAPI(globals.students[len(globals.students) - 1])
     CreateFriendsList(inputUser)
     createNewUserNotification(inputFirstName, inputLastName)
     UpdateApplicationTime(inputUser)
@@ -1388,11 +1381,10 @@ def MessageingMenu():
         #quitLogic()
 
 def ShowInCollegeLearningMenu():
-    print("Len: " + str(len(completedCourses)))
     while True:
         coursesTaken = "Completed Courses: "
         atleastOneCourse = False
-        
+
         for course in completedCourses:
             if (globals.currentAccount.username in course or f"{globals.currentAccount.username}\n" in course):
                 coursesTaken += f"{course[0]}, "
@@ -1401,33 +1393,92 @@ def ShowInCollegeLearningMenu():
         if(not atleastOneCourse):
             coursesTaken = "You have not taken any courses yet.\n"
 
-        for i in range(len(completedCourses)):
-            print(f"Press [{i}] for {completedCourses[i][0]}")
-        print("Press[Q] to return to the previous menu")
-        selection = input("Please make a selection: ")
-        if(selection.isnumeric()):
-            selection = int(selection)
-            while(selection < 0 or selection >= len(completedCourses)):
-                selection = input("Invalid selection. Try again: ")
-                if not selection.isnumeric():
-                    return
-                selection = int(selection)
-        else:
-            return
+        selection = input(
+            "\n" + "Select a course:" + '\n' \
+            + "Press [H] for How to Use InCollege Learning" + '\n' \
+            + "Press [T] for Train the Trainer" + '\n' \
+            + "Press [G] for Gamification of Learning" + '\n' \
+            + "Press [U] for Understanding the Architectural Design Process" + '\n' \
+            + "Press [P] for Product Management Simplified" + '\n' \
+            + f"Press [{globals.goBack.upper()}] to return to the previous menu" + '\n'\
+            + coursesTaken + '\n')
+
+        selection = selection.lower()
         takeAgain = False
-        
-        if (globals.currentAccount.username in completedCourses[selection] 
-        or f"{globals.currentAccount.username}\n" in completedCourses[selection]):
-            takeAgain = ShowAreYouSureMenu()
-            if(takeAgain):
-                print('\nYou have now completed this training again!\n')
-                continue
-            #else:
-            #    continue
-        else:
-            completedCourses[selection].append(f"{globals.currentAccount.username}")
+
+        if(selection == 'h'):
+            if (globals.currentAccount.username in completedCourses[0]
+            or f"{globals.currentAccount.username}\n" in completedCourses[0]):
+                takeAgain = ShowAreYouSureMenu()
+                if(takeAgain):
+                    print('\nYou have now completed this training again!\n')
+                    continue
+                else:
+                    continue
+
+            completedCourses[0].append(f"{globals.currentAccount.username}")
             UpdateCompletedCourses()
             print('\nYou have now completed this training!\n')
+
+        elif(selection == 't'):
+            if (globals.currentAccount.username in completedCourses[1] or
+            f"{globals.currentAccount.username}\n" in completedCourses[1]):
+                takeAgain = ShowAreYouSureMenu()
+                if(takeAgain):
+                    print('\nYou have now completed this training again!\n')
+                    continue
+                else:
+                    continue
+
+            completedCourses[1].append(globals.currentAccount.username)
+            UpdateCompletedCourses()
+            print('\nYou have now completed this training!\n')
+
+        elif(selection == 'g'):
+            if (globals.currentAccount.username in completedCourses[2] or
+            f"{globals.currentAccount.username}\n" in completedCourses[2]):
+                takeAgain = ShowAreYouSureMenu()
+                if(takeAgain):
+                    print('\nYou have now completed this training again!\n')
+                    continue
+                else:
+                    continue
+
+            completedCourses[2].append(globals.currentAccount.username)
+            UpdateCompletedCourses()
+            print('\nYou have now completed this training!\n')
+
+        elif(selection == 'u'):
+            if (globals.currentAccount.username in completedCourses[3] or
+            f"{globals.currentAccount.username}\n" in completedCourses[3]):
+                takeAgain = ShowAreYouSureMenu()
+                if(takeAgain):
+                    print('\nYou have now completed this training again!\n')
+                    continue
+                else:
+                    continue
+
+            completedCourses[3].append(globals.currentAccount.username)
+            UpdateCompletedCourses()
+            print('\nYou have now completed this training!\n')
+
+        elif(selection == 'p'):
+            if (globals.currentAccount.username in completedCourses[4] or
+            f"{globals.currentAccount.username}\n" in completedCourses[4]):
+                takeAgain = ShowAreYouSureMenu()
+                if(takeAgain):
+                    print('\nYou have now completed this training again!\n')
+                    continue
+                else:
+                    continue
+
+            completedCourses[4].append(globals.currentAccount.username)
+            UpdateCompletedCourses()
+            print('\nYou have now completed this training!\n')
+
+        elif (selection == globals.goBack):
+                return
+
 
 def ShowAreYouSureMenu():
     while True:
@@ -1443,6 +1494,7 @@ def ShowAreYouSureMenu():
         elif (selection == globals.goBack or selection == 'n'):
                 return False
 
+
 def LoadCompletedCourses():
     with open("CompletedCourses.txt", "r") as file:
         lines = file.readlines()
@@ -1451,8 +1503,8 @@ def LoadCompletedCourses():
             completedCourses.append(listLine)
             #print(f"{listLine[0]}, {listLine[1]}")
     #for course in completedCourses:
-        #print(f"{course}")
-        
+    #    print(f"{course}")
+
 
 def UpdateCompletedCourses():
     with open("CompletedCourses.txt", "w") as coursesFile:
@@ -1466,11 +1518,8 @@ def UpdateCompletedCourses():
                 else:
                     courseGraduates += f"{courseGraduate},"
                 count += 1
-            # print(f"{courseGraduates}")
+            print(f"{courseGraduates}")
             print(f"{courseGraduates}", file=coursesFile)
-    coursesFile.close()
-    OutputTrainingAPI()
-    
 
 def ShowUsefulLinks():
     global choice
@@ -1536,7 +1585,6 @@ def ShowGeneralLinks():
         # Go back to sign up page (first break) (need to go back twice) (Don't reset choice)
         if (choice == 's'):
             return
-
         quitLogic()
 
 
@@ -1550,12 +1598,15 @@ def quitLogic():
         choice = input(f"\nPress [{globals.goBack.upper()}] to return to the previous menu:\n")
 
 
-# include function to call from CreateAccount()  that would create account (change user and pass from "NULL") then add info to some .txt file for permanent storage
-# include function that upon starting InCollege app would open .txt file and create already existing accounts / add them to array
-# need function to check if any account spots are left
-# def FreeSpace ():
-
 def InputAccountsAPI():
+    """Opens a file containing information needed to create new student accounts."""
+    if path.isfile("docs\\API\\input\\studentAccounts.txt"):
+        pass
+    else:
+        return False
+
+    # Old API code
+    """
     i = 0
     usernames = []
     passwords = []
@@ -1567,7 +1618,7 @@ def InputAccountsAPI():
     #lines = accountFile.readlines()
     lines = accountFile.read()
     credentials = lines.split("=====\n")
-    
+
     for c in credentials:
         c = c.split('\n')
         usernames.append(c[0])
@@ -1578,7 +1629,7 @@ def InputAccountsAPI():
             plus.append(True)
         else:
             plus.append(False)
-    
+
     while(i < len(usernames)):
         if len(globals.students) >= 10:
             break
@@ -1592,25 +1643,35 @@ def InputAccountsAPI():
             textAlerts=True,
             targetedAdvertising=True,
             language="English"))
-            
+
             CreateFriendsList(usernames[i])
             createNewUserNotification(firstnames[i], lastnames[i])
             UpdateApplicationTime(usernames[i])
-            
+
             i += 1
     accountFile.close()
+    """
+
 
 def InputJobsAPI():
+    """Opens a file containing information needed to create job listings."""
+    if path.isfile("docs\\API\\input\\newJobs.txt"):
+        pass
+    else:
+        return False
+
+    # Old API code
+    """
     if not path.exists("newJobs.txt"):
         return
-    
+
     i=0
     titles = []
     descriptions = []
     employers = []
     locations = []
     salaries = []
-    
+
     jobFile = open('newJobs.txt', 'r')
     lines = jobFile.read()
     joblist = lines.split("=====\n")
@@ -1620,7 +1681,7 @@ def InputJobsAPI():
         j1 = j[0].split("\n")
         j2 = j[1].split("\n")
         titles.append(j1[0])
-        
+
         for i in range(1,len(j1)):
             d += (j1[i])
             d += ("\n")
@@ -1629,97 +1690,235 @@ def InputJobsAPI():
         employers.append(j2[0])
         locations.append(j2[1])
         salaries.append(int(j2[2]))
-            
+
     jobFile.close()
-    
+
     for i in range(len(titles)):
         if len(globals.jobs) >= 10:
             break
         else:
-            globals.jobs.append(Job("N/A", 
+            globals.jobs.append(Job("N/A",
             titles[i],
             descriptions[i],
             employers[i],
             locations[i],
             salaries[i]))
+    """
 
-#Run this function only after LoadCompletedCourses    
 def InputTrainingAPI():
+    """Opens a file containing information needed for student training courses."""
+    if path.isfile("docs\\API\\input\\newTraining.txt"):
+        pass
+    else:
+        return False
+
+    # Old API code
+    """
     trainingFile = open("newtraining.txt", 'r')
     courses = trainingFile.read()
     courses = courses.split("\n")
     for c in courses:
         completedCourses.append([c])
     trainingFile.close()
-    
+    """
+
 def OutputJobsAPI():
-    jobFile = open('MyCollege_jobs.txt', 'w')
-    for j in globals.jobs:
-        jobFile.write(j.title + '\n')
-        jobFile.write(j.description + '\n')
-        jobFile.write("&&&\n")
-        jobFile.write(j.employer + '\n')
-        jobFile.write(j.location + '\n')
-        jobFile.write(str(j.salary) + '\n')
-        jobFile.write("=====\n")
-    jobFile.close()
+    """Outputs information related to each job in the InCollege system."""
+    # Read in each job from file
+    jobs = list()
+    with open("Jobs.txt", "r") as file:
+        while True:
+            line = file.readline().split()
+            if not line:
+                break
+            else:
+                jobs.append(line)
 
-def OutputAppliedJobsAPI():
-    jobFile = open('MyCollege_appliedJobs.txt', 'w')
-    for j in globals.jobs:
-        jobFile.write(j.title + '\n')
-        for i in globals.myApplications:
-            if i.intendedJob == j.title:
-                jobFile.write(i.username, ' ')
-                jobFile.write(i.coverLetter, '\n')
-        jobFile.write("=====\n")
-    jobFile.close()
+    [job.pop(0) for job in jobs]  # Remove the username of the job poster from each job
+    [job.append("=====") for job in jobs]  # Append a string to differentiate between jobs
 
-def OutputSavedJobsAPI():
-    jobFile = open('MyCollege_savedJobs.txt', 'w')
-    for j in globals.students:
-        if len(j.savedJobs) > 0:
-            jobFile.write(j.username, ': ')
-            for i in j.savedJobs:
-                jobFile.write(i.title, ' ')
-            jobFile.write("=====\n")
-    jobFile.close()
+    # Write each job to the API output file
+    with open("docs\\API\\output\\MyCollege_jobs.txt", "w") as file:
+        [file.write(param + '\n') for job in jobs for param in job]
+
+
+def OutputProfilesAPI():
+    """Outputs information related to each student profile in the InCollege system."""
+    # Read in the title, major, university, and "about" section for each profile from file
+    profiles = list()
+    with open("Profiles.txt", "r") as file:
+        while True:
+            line = file.readline().split()
+            if not line:
+                break
+            else:
+                profiles.append(line)
+
+    # Remove first name and last name from each profile
+    for i in range(2):
+        [profile.pop(1) for profile in profiles]
+
+    # Read in work experience for all profiles
+    experiences = list()
+    with open("Experiences.txt", "r") as file:
+        while True:
+            line = file.readline().split()
+            if not line:
+                break
+            else:
+                experiences.append(line)
+
+    # Append work experience to matching profiles
+    for experience in experiences:
+        for profile in profiles:
+            if experience[0] == profile[0]:  # Check for matching usernames
+                exp = ' '.join(param for param in experience)  # Combine list items into a string
+            profile.append(exp)
+
+    # Read in education for all profiles
+    educations = list()
+    with open("Education.txt", "r") as file:
+        while True:
+            line = file.readline().split()
+            if not line:
+                break
+            else:
+                educations.append(line)
+
+    # Append education to matching profiles
+    for education in educations:
+        for profile in profiles:
+            if education[0] == profile[0]:  # Check for matching usernames
+                profile.append(education[2])  # Append college degree
+
+    # Append a string to differentiate between jobs
+    [profile.append("=====") for profile in profiles]
+
+    # Write each profile to the API output file
+    with open("docs\\API\\output\\MyCollege_profiles.txt", "w") as file:
+        [file.write(param + '\n') for profile in profiles for param in profile]
+
+
+def OutputUsersAPI():
+    """Outputs information related to each user account in the InCollege system."""
+    # Read in each username and account type from file
+    users = list()
+    with open("Logins.txt", "r") as file:
+        while True:
+            line = file.readline().split()
+            if not line:
+                break
+            else:
+                users.append([line[0], line[4]])
+
+    # Check each user's account membership type
+    for user in users:
+        if user[1] == "True":  # True if "plus", False if "standard"
+            user.pop(1)
+            user.append("plus")
+        else:
+            user.pop(1)
+            user.append("standard")
+
+    # Write each user to the API output file
+    with open("docs\\API\\output\\MyCollege_users.txt", "w") as file:
+        [file.write(user[0] + ' ' + user[1] + '\n') for user in users]
+
 
 def OutputTrainingAPI():
-    trainFile = open("MyCollege_training.txt", 'w')
-    for u in globals.students:
-        trainFile.write(u.username + '\n')
-        for c in completedCourses:
-            if u.username in c:
-                trainFile.write(c[0]+"\n")
-        trainFile.write("=====\n")
-    trainFile.close()
+    """Outputs information related to all training courses taken by students in the InCollege system."""
+    # Read in all courses and users
+    temp = None
+    with open("CompletedCourses.txt", "r") as file:
+        temp = file.read().splitlines()
 
-def OutputProfilesAPI(profileInfo):
-    if not path.exists('MyCollege_profiles.txt'):
-        return
+    # Split each string into separate list items
+    lines = list()
+    [lines.append(line.split(',')) for line in temp]
 
-    username = profileInfo.username
-    title = profileInfo.title
-    major = profileInfo.major
-    universities = profileInfo.schoolName
-    about = profileInfo.bio
-    experience = profileInfo.experience
-    education = profileInfo.education
-    profileFile = open('MyCollege_profiles.txt', 'r+')
+    # Add each user and the courses they have taken to a dictionary
+    coursesTaken = dict()
+    for line in lines:
+        for user in line:
+            if user != line[0]:
+                if user not in coursesTaken.keys():
+                    coursesTaken[user] = list()
+                coursesTaken[user].append(line[0])
 
-    profileFile.append(username, title, major, universities, about, experience, education, "/n============================================================/n")
+    # Write each user and the courses they have taken to the API output file
+    with open("docs\\API\\output\\MyCollege_training.txt", "w") as file:
+        line = ""
+        for user, courses in coursesTaken.items():
+            line += user + ','
+            for course in courses:
+                line += course + ','
+            line = line[:-1]  # Remove trailing comma
+            file.write(line + '\n')
+            line = ""
 
-def OutputUsersAPI(userAccount):
-    username = userAccount.username
-    plus = userAccount.accountPlus
-    if plus == True:
-        plusResult = "plus"
-    else:
-        plusResult = "standard"
-    userFile = open('MyCollege_users.txt', 'r+')
-    userFile.append(username, plusResult)
 
+def OutputAppliedJobsAPI():
+    """Outputs information related to all pending job applications in the InCollege system."""
+    # Read all job application lines into memory
+    lines = list()
+    with open("Applications.txt", "r") as file:
+        while True:
+            line = file.readline().rstrip()
+            if line:
+                if line[0] == "\n":  # Ignore newlines
+                    continue
+                lines.append(line)
+            else:  # Terminate at end-of-file
+                break
+
+    # Append each username, title, and reason for applying
+    apps = list()
+    username = None
+    title = None
+    for lineNum, lineText in enumerate(lines, 1):
+        if lineNum % 9 == 1:  # Username
+            username = lineText
+        elif lineNum % 9 == 2:  # Title
+            title = lineText
+        elif lineNum % 9 == 0:  # Reason given for applying
+            apps.extend([title, username, lineText, "====="])
+
+    # Write each application to the API output file
+    with open("docs\\API\\output\\MyCollege_appliedJobs.txt", "w") as file:
+        [file.write(app + '\n') for app in apps]
+
+
+def OutputSavedJobsAPI():
+    """Outputs information related to each saved job in the InCollege system."""
+    # Read in each saved job from file
+    jobs = list()
+    with open("SavedJobs.txt", "r") as file:
+        while True:
+            line = file.readline().split()
+            if not line:
+                break
+            else:
+                jobs.append([line[0], line[2], "====="])
+
+    # Write each saved job to the API output file
+    with open("docs\\API\\output\\MyCollege_savedJobs.txt", "w") as file:
+        [file.write(param + '\n') for job in jobs for param in job]
+
+
+def UpdateOutputAPI():
+    """Re-write all output API files. Intended for program startup and exit."""
+    OutputJobsAPI()
+    OutputProfilesAPI()
+    OutputUsersAPI()
+    OutputTrainingAPI()
+    OutputAppliedJobsAPI()
+    OutputSavedJobsAPI()
+
+
+# include function to call from CreateAccount()  that would create account (change user and pass from "NULL") then add info to some .txt file for permanent storage
+# include function that upon starting InCollege app would open .txt file and create already existing accounts / add them to array
+# need function to check if any account spots are left
+# def FreeSpace ():
 def mainMenu():
     """Show the main menus to the user."""
     # create array of size max # of students
@@ -1736,32 +1935,9 @@ def mainMenu():
     choice = 'd'
     friendsLists = []
     requests = []
-    newUsers = list()
-    completedCourses = list()
+    newUsers = []
+    completedCourses = []
 
-    if path.exists("studentAccounts.txt"):
-        print("Student accounts API found")
-        InputAccountsAPI()
-        #For testing output of accounts
-        '''
-        for i in range(len(globals.students)):
-            print(str(i+1) + ".")
-            print(globals.students[i].Print())
-        '''
-    if path.exists("newJobs.txt"):
-        print("New jobs API found")
-        InputJobsAPI()
-        OutputJobsAPI()
-        #for testing output of jobs
-        '''
-        for i in range(len(globals.jobs)):
-            print("Title: " + globals.jobs[i].title)
-            print("Description: " + globals.jobs[i].description)
-            print("Employer: " + globals.jobs[i].employer)
-            print("Location: " + globals.jobs[i].location)
-            print("Salary: " + str(globals.jobs[i].salary))
-            print("=====")
-        '''
     # Reload text file data into memory before logging in
     SuccessStory()
     LoadAccounts()
@@ -1771,19 +1947,10 @@ def mainMenu():
     LoadJobs()
     LoadMessages()
     LoadNewUsers()
-    if path.exists("newtraining.txt"):
-        print("Training API found")
-        InputTrainingAPI()
-        #for testing output of training
-        '''
-        print(str(len(completedCourses)))
-        
-        for t in completedCourses:
-            print(t[0])
-        '''
-    else:
-        LoadCompletedCourses()
-    
+    LoadCompletedCourses()
+
+    UpdateOutputAPI()
+
     while True:  # Logged in and logged out menu loop
         while not globals.loggedIn:
             choice = ShowLoggedOutMenu()
@@ -1805,5 +1972,6 @@ def mainMenu():
 if __name__ == "__main__":
     globals.Initialize()
     mainMenu()
+    UpdateOutputAPI()
 
 # Pineapple is the greatest pizza topping in the world

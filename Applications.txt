@@ -1,1 +1,18 @@
-
+q1
+Software_engineer 
+Program_stuff 
+Macrosoft 
+Seattle 
+90000
+2020-12-10
+2021-01-04
+I can program stuff
+q2
+DevOps_engineer 
+Make_software_stuff_easier 
+Lockheed_Martha 
+Orlando 
+96000
+2020-12-10
+2021-01-04
+I am good at DevOps stuff
