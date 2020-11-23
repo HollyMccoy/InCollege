@@ -1,0 +1,8 @@
+Software_engineer
+q1
+I can program stuff
+=====
+DevOps_engineer
+q2
+I am good at DevOps stuff
+=====
