@@ -637,6 +637,7 @@ def CreateProfile():
     globals.currentProfile = Profile(globals.currentAccount.username, firstName, lastName, title, major, schoolName,
                                      bio, experience, education)
     globals.profiles.append(globals.currentProfile)
+    OutputProfilesAPI(globals.currentProfile)
 
     with open("Profiles.txt", "a+") as file3:
         print("{}".format(globals.currentProfile.Write()), file=file3, end="")
@@ -884,6 +885,7 @@ def SaveJob(jobNum):
             file.write(globals.currentAccount.username + ' '
                 + globals.jobs[jobNum].Write())
             print("\n" + "Job saved!" + "\n")
+    OutputSavedJobsAPI()
 
 
 def DisplayJobDetails():
@@ -1096,6 +1098,7 @@ def SubmitApplication():
     print("Your application has been submitted!\n")
 
     UpdateApplicationTime(globals.currentAccount.username)
+    OutputAppliedJobsAPI()
     return
 
 
@@ -1158,6 +1161,7 @@ def CreateAccount():
     with open("Logins.txt", "a+") as loginFile:
         print("{}".format(globals.students[len(globals.students) - 1].Print()), file=loginFile)
     print('Account successfully created!')
+    OutputUsersAPI(globals.students[len(globals.students) - 1])
     CreateFriendsList(inputUser)
     createNewUserNotification(inputFirstName, inputLastName)
     UpdateApplicationTime(inputUser)
@@ -1659,7 +1663,28 @@ def OutputJobsAPI():
         jobFile.write(str(j.salary) + '\n')
         jobFile.write("=====\n")
     jobFile.close()
-    
+
+def OutputAppliedJobsAPI():
+    jobFile = open('MyCollege_appliedJobs.txt', 'w')
+    for j in globals.jobs:
+        jobFile.write(j.title + '\n')
+        for i in globals.myApplications:
+            if i.intendedJob == j.title:
+                jobFile.write(i.username, ' ')
+                jobFile.write(i.coverLetter, '\n')
+        jobFile.write("=====\n")
+    jobFile.close()
+
+def OutputSavedJobsAPI():
+    jobFile = open('MyCollege_savedJobs.txt', 'w')
+    for j in globals.students:
+        if len(j.savedJobs) > 0:
+            jobFile.write(j.username, ': ')
+            for i in j.savedJobs:
+                jobFile.write(i.title, ' ')
+            jobFile.write("=====\n")
+    jobFile.close()
+
 def OutputTrainingAPI():
     trainFile = open("MyCollege_training.txt", 'w')
     for u in globals.students:
@@ -1669,6 +1694,32 @@ def OutputTrainingAPI():
                 trainFile.write(c[0]+"\n")
         trainFile.write("=====\n")
     trainFile.close()
+
+def OutputProfilesAPI(profileInfo):
+    if not path.exists('MyCollege_profiles.txt'):
+        return
+
+    username = profileInfo.username
+    title = profileInfo.title
+    major = profileInfo.major
+    universities = profileInfo.schoolName
+    about = profileInfo.bio
+    experience = profileInfo.experience
+    education = profileInfo.education
+    profileFile = open('MyCollege_profiles.txt', 'r+')
+
+    profileFile.append(username, title, major, universities, about, experience, education, "/n============================================================/n")
+
+def OutputUsersAPI(userAccount):
+    username = userAccount.username
+    plus = userAccount.accountPlus
+    if plus == True:
+        plusResult = "plus"
+    else:
+        plusResult = "standard"
+    userFile = open('MyCollege_users.txt', 'r+')
+    userFile.append(username, plusResult)
+
 def mainMenu():
     """Show the main menus to the user."""
     # create array of size max # of students
