@@ -20,8 +20,8 @@ def checkIfEmpty(fileName):
         while True:
             line = file.readline()
             if not line:
-                return False
-            elif line == "\n":
-                return False
-            else:
                 return True
+            elif line == "\n":
+                continue
+            else:
+                return False

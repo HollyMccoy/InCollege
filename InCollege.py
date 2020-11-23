@@ -10,6 +10,7 @@ import sys, time
 from datetime import date
 from datetime import datetime
 from Inbox import Inbox
+from os import path
 
 inbox = Inbox()
 
@@ -636,6 +637,7 @@ def CreateProfile():
     globals.currentProfile = Profile(globals.currentAccount.username, firstName, lastName, title, major, schoolName,
                                      bio, experience, education)
     globals.profiles.append(globals.currentProfile)
+    OutputProfilesAPI(globals.currentProfile)
 
     with open("Profiles.txt", "a+") as file3:
         print("{}".format(globals.currentProfile.Write()), file=file3, end="")
@@ -750,6 +752,7 @@ def CreateJob():
         file1.write(globals.jobs[len(globals.jobs) - 1].PrintWithCreator())  # PrintWithCreator function added in at the last minute
         # print(globals.jobs[len(globals.jobs) - 1].Info(), file=file1)
     CreateNewJobNotification(title)
+    OutputJobsAPI()
 
 
 def CreateNewJobNotification(jobTitle):
@@ -770,6 +773,7 @@ def DeleteJob(jobNum):
     DeleteJobApplications(deletedJob)  # Delete any current applications for this job
     DeleteSavedJobs(deletedJob)  # Delete any saved entries for this job
     CreateDeletedJobNotification(deletedJob)  # Notify relevant users of the deletion
+    OutputJobsAPI()
 
 
 def DeleteJobApplications(deletedJob):
@@ -881,6 +885,7 @@ def SaveJob(jobNum):
             file.write(globals.currentAccount.username + ' '
                 + globals.jobs[jobNum].Write())
             print("\n" + "Job saved!" + "\n")
+    OutputSavedJobsAPI()
 
 
 def DisplayJobDetails():
@@ -1093,6 +1098,7 @@ def SubmitApplication():
     print("Your application has been submitted!\n")
 
     UpdateApplicationTime(globals.currentAccount.username)
+    OutputAppliedJobsAPI()
     return
 
 
@@ -1155,6 +1161,7 @@ def CreateAccount():
     with open("Logins.txt", "a+") as loginFile:
         print("{}".format(globals.students[len(globals.students) - 1].Print()), file=loginFile)
     print('Account successfully created!')
+    OutputUsersAPI(globals.students[len(globals.students) - 1])
     CreateFriendsList(inputUser)
     createNewUserNotification(inputFirstName, inputLastName)
     UpdateApplicationTime(inputUser)
@@ -1381,6 +1388,7 @@ def MessageingMenu():
         #quitLogic()
 
 def ShowInCollegeLearningMenu():
+    print("Len: " + str(len(completedCourses)))
     while True:
         coursesTaken = "Completed Courses: "
         atleastOneCourse = False
@@ -1393,91 +1401,33 @@ def ShowInCollegeLearningMenu():
         if(not atleastOneCourse):
             coursesTaken = "You have not taken any courses yet.\n"
 
-        selection = input(
-            "\n" + "Select a course:" + '\n' \
-            + "Press [H] for How to Use InCollege Learning" + '\n' \
-            + "Press [T] for Train the Trainer" + '\n' \
-            + "Press [G] for Gamification of Learning" + '\n' \
-            + "Press [U] for Understanding the Architectural Design Process" + '\n' \
-            + "Press [P] for Product Management Simplified" + '\n' \
-            + f"Press [{globals.goBack.upper()}] to return to the previous menu" + '\n'\
-            + coursesTaken + '\n')
-
-        selection = selection.lower()
+        for i in range(len(completedCourses)):
+            print(f"Press [{i}] for {completedCourses[i][0]}")
+        print("Press[Q] to return to the previous menu")
+        selection = input("Please make a selection: ")
+        if(selection.isnumeric()):
+            selection = int(selection)
+            while(selection < 0 or selection >= len(completedCourses)):
+                selection = input("Invalid selection. Try again: ")
+                if not selection.isnumeric():
+                    return
+                selection = int(selection)
+        else:
+            return
         takeAgain = False
-
-        if(selection == 'h'):
-            if (globals.currentAccount.username in completedCourses[0] 
-            or f"{globals.currentAccount.username}\n" in completedCourses[0]):
-                takeAgain = ShowAreYouSureMenu()
-                if(takeAgain):
-                    print('\nYou have now completed this training again!\n')
-                    continue
-                else:
-                    continue
-
-            completedCourses[0].append(f"{globals.currentAccount.username}")
-            UpdateCompletedCourses()
-            print('\nYou have now completed this training!\n')
-
-        elif(selection == 't'):
-            if (globals.currentAccount.username in completedCourses[1] or 
-            f"{globals.currentAccount.username}\n" in completedCourses[1]):
-                takeAgain = ShowAreYouSureMenu()
-                if(takeAgain):
-                    print('\nYou have now completed this training again!\n')
-                    continue
-                else:
-                    continue
-
-            completedCourses[1].append(globals.currentAccount.username)
-            UpdateCompletedCourses()
-            print('\nYou have now completed this training!\n')
         
-        elif(selection == 'g'):
-            if (globals.currentAccount.username in completedCourses[2] or 
-            f"{globals.currentAccount.username}\n" in completedCourses[2]):
-                takeAgain = ShowAreYouSureMenu()
-                if(takeAgain):
-                    print('\nYou have now completed this training again!\n')
-                    continue
-                else:
-                    continue
-
-            completedCourses[2].append(globals.currentAccount.username)
+        if (globals.currentAccount.username in completedCourses[selection] 
+        or f"{globals.currentAccount.username}\n" in completedCourses[selection]):
+            takeAgain = ShowAreYouSureMenu()
+            if(takeAgain):
+                print('\nYou have now completed this training again!\n')
+                continue
+            #else:
+            #    continue
+        else:
+            completedCourses[selection].append(f"{globals.currentAccount.username}")
             UpdateCompletedCourses()
             print('\nYou have now completed this training!\n')
-            
-        elif(selection == 'u'):
-            if (globals.currentAccount.username in completedCourses[3] or 
-            f"{globals.currentAccount.username}\n" in completedCourses[3]):
-                takeAgain = ShowAreYouSureMenu()
-                if(takeAgain):
-                    print('\nYou have now completed this training again!\n')
-                    continue
-                else:
-                    continue
-
-            completedCourses[3].append(globals.currentAccount.username)
-            UpdateCompletedCourses()
-            print('\nYou have now completed this training!\n')
-            
-        elif(selection == 'p'):
-            if (globals.currentAccount.username in completedCourses[4] or 
-            f"{globals.currentAccount.username}\n" in completedCourses[4]):
-                takeAgain = ShowAreYouSureMenu()
-                if(takeAgain):
-                    print('\nYou have now completed this training again!\n')
-                    continue
-                else:
-                    continue
-
-            completedCourses[4].append(globals.currentAccount.username)
-            UpdateCompletedCourses()
-            print('\nYou have now completed this training!\n')
-
-        elif (selection == globals.goBack):
-                return
 
 def ShowAreYouSureMenu():
     while True:
@@ -1518,6 +1468,9 @@ def UpdateCompletedCourses():
                 count += 1
             # print(f"{courseGraduates}")
             print(f"{courseGraduates}", file=coursesFile)
+    coursesFile.close()
+    OutputTrainingAPI()
+    
 
 def ShowUsefulLinks():
     global choice
@@ -1601,6 +1554,172 @@ def quitLogic():
 # include function that upon starting InCollege app would open .txt file and create already existing accounts / add them to array
 # need function to check if any account spots are left
 # def FreeSpace ():
+
+def InputAccountsAPI():
+    i = 0
+    usernames = []
+    passwords = []
+    firstnames = []
+    lastnames = []
+    plus = []
+    uFlag = False
+    accountFile = open('studentAccounts.txt', 'r')
+    #lines = accountFile.readlines()
+    lines = accountFile.read()
+    credentials = lines.split("=====\n")
+    
+    for c in credentials:
+        c = c.split('\n')
+        usernames.append(c[0])
+        passwords.append(c[1])
+        firstnames.append(c[2])
+        lastnames.append(c[3])
+        if(c[4] == "True"):
+            plus.append(True)
+        else:
+            plus.append(False)
+    
+    while(i < len(usernames)):
+        if len(globals.students) >= 10:
+            break
+        else:
+            globals.students.append(User(usernames[i],
+            passwords[i],
+            firstnames[i],
+            lastnames[i],
+            plus[i],  # Standard = false, Plus = true
+            emailAlerts=True,
+            textAlerts=True,
+            targetedAdvertising=True,
+            language="English"))
+            
+            CreateFriendsList(usernames[i])
+            createNewUserNotification(firstnames[i], lastnames[i])
+            UpdateApplicationTime(usernames[i])
+            
+            i += 1
+    accountFile.close()
+
+def InputJobsAPI():
+    if not path.exists("newJobs.txt"):
+        return
+    
+    i=0
+    titles = []
+    descriptions = []
+    employers = []
+    locations = []
+    salaries = []
+    
+    jobFile = open('newJobs.txt', 'r')
+    lines = jobFile.read()
+    joblist = lines.split("=====\n")
+    for j in joblist:
+        d = ""
+        j = j.split("&&&\n")
+        j1 = j[0].split("\n")
+        j2 = j[1].split("\n")
+        titles.append(j1[0])
+        
+        for i in range(1,len(j1)):
+            d += (j1[i])
+            d += ("\n")
+        d = d[:-2] #Remove last 2 lines
+        descriptions.append(d)
+        employers.append(j2[0])
+        locations.append(j2[1])
+        salaries.append(int(j2[2]))
+            
+    jobFile.close()
+    
+    for i in range(len(titles)):
+        if len(globals.jobs) >= 10:
+            break
+        else:
+            globals.jobs.append(Job("N/A", 
+            titles[i],
+            descriptions[i],
+            employers[i],
+            locations[i],
+            salaries[i]))
+
+#Run this function only after LoadCompletedCourses    
+def InputTrainingAPI():
+    trainingFile = open("newtraining.txt", 'r')
+    courses = trainingFile.read()
+    courses = courses.split("\n")
+    for c in courses:
+        completedCourses.append([c])
+    trainingFile.close()
+    
+def OutputJobsAPI():
+    jobFile = open('MyCollege_jobs.txt', 'w')
+    for j in globals.jobs:
+        jobFile.write(j.title + '\n')
+        jobFile.write(j.description + '\n')
+        jobFile.write("&&&\n")
+        jobFile.write(j.employer + '\n')
+        jobFile.write(j.location + '\n')
+        jobFile.write(str(j.salary) + '\n')
+        jobFile.write("=====\n")
+    jobFile.close()
+
+def OutputAppliedJobsAPI():
+    jobFile = open('MyCollege_appliedJobs.txt', 'w')
+    for j in globals.jobs:
+        jobFile.write(j.title + '\n')
+        for i in globals.myApplications:
+            if i.intendedJob == j.title:
+                jobFile.write(i.username, ' ')
+                jobFile.write(i.coverLetter, '\n')
+        jobFile.write("=====\n")
+    jobFile.close()
+
+def OutputSavedJobsAPI():
+    jobFile = open('MyCollege_savedJobs.txt', 'w')
+    for j in globals.students:
+        if len(j.savedJobs) > 0:
+            jobFile.write(j.username, ': ')
+            for i in j.savedJobs:
+                jobFile.write(i.title, ' ')
+            jobFile.write("=====\n")
+    jobFile.close()
+
+def OutputTrainingAPI():
+    trainFile = open("MyCollege_training.txt", 'w')
+    for u in globals.students:
+        trainFile.write(u.username + '\n')
+        for c in completedCourses:
+            if u.username in c:
+                trainFile.write(c[0]+"\n")
+        trainFile.write("=====\n")
+    trainFile.close()
+
+def OutputProfilesAPI(profileInfo):
+    if not path.exists('MyCollege_profiles.txt'):
+        return
+
+    username = profileInfo.username
+    title = profileInfo.title
+    major = profileInfo.major
+    universities = profileInfo.schoolName
+    about = profileInfo.bio
+    experience = profileInfo.experience
+    education = profileInfo.education
+    profileFile = open('MyCollege_profiles.txt', 'r+')
+
+    profileFile.append(username, title, major, universities, about, experience, education, "/n============================================================/n")
+
+def OutputUsersAPI(userAccount):
+    username = userAccount.username
+    plus = userAccount.accountPlus
+    if plus == True:
+        plusResult = "plus"
+    else:
+        plusResult = "standard"
+    userFile = open('MyCollege_users.txt', 'r+')
+    userFile.append(username, plusResult)
+
 def mainMenu():
     """Show the main menus to the user."""
     # create array of size max # of students
@@ -1620,6 +1739,29 @@ def mainMenu():
     newUsers = list()
     completedCourses = list()
 
+    if path.exists("studentAccounts.txt"):
+        print("Student accounts API found")
+        InputAccountsAPI()
+        #For testing output of accounts
+        '''
+        for i in range(len(globals.students)):
+            print(str(i+1) + ".")
+            print(globals.students[i].Print())
+        '''
+    if path.exists("newJobs.txt"):
+        print("New jobs API found")
+        InputJobsAPI()
+        OutputJobsAPI()
+        #for testing output of jobs
+        '''
+        for i in range(len(globals.jobs)):
+            print("Title: " + globals.jobs[i].title)
+            print("Description: " + globals.jobs[i].description)
+            print("Employer: " + globals.jobs[i].employer)
+            print("Location: " + globals.jobs[i].location)
+            print("Salary: " + str(globals.jobs[i].salary))
+            print("=====")
+        '''
     # Reload text file data into memory before logging in
     SuccessStory()
     LoadAccounts()
@@ -1629,8 +1771,19 @@ def mainMenu():
     LoadJobs()
     LoadMessages()
     LoadNewUsers()
-    LoadCompletedCourses()
-
+    if path.exists("newtraining.txt"):
+        print("Training API found")
+        InputTrainingAPI()
+        #for testing output of training
+        '''
+        print(str(len(completedCourses)))
+        
+        for t in completedCourses:
+            print(t[0])
+        '''
+    else:
+        LoadCompletedCourses()
+    
     while True:  # Logged in and logged out menu loop
         while not globals.loggedIn:
             choice = ShowLoggedOutMenu()
