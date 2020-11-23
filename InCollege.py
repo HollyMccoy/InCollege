@@ -1711,6 +1711,15 @@ def mainMenu():
             print("Salary: " + str(globals.jobs[i].salary))
             print("=====")
         '''
+    # Reload text file data into memory before logging in
+    SuccessStory()
+    LoadAccounts()
+    LoadProfiles()
+    LoadFriendsList()
+    LoadRequests()
+    LoadJobs()
+    LoadMessages()
+    LoadNewUsers()
     if path.exists("newtraining.txt"):
         print("Training API found")
         InputTrainingAPI()
@@ -1721,16 +1730,8 @@ def mainMenu():
         for t in completedCourses:
             print(t[0])
         '''
-    # Reload text file data into memory before logging in
-    SuccessStory()
-    LoadAccounts()
-    LoadProfiles()
-    LoadFriendsList()
-    LoadRequests()
-    LoadJobs()
-    LoadMessages()
-    LoadNewUsers()
-    #LoadCompletedCourses()
+    else:
+        LoadCompletedCourses()
     
     while True:  # Logged in and logged out menu loop
         while not globals.loggedIn:
