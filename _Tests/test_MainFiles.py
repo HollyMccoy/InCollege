@@ -4,78 +4,74 @@ from os import path
 from _Tests.testGlobals import checkIfEmpty
 from _Tests.testGlobals import checkParamLength
 
-educationFile = "Education.txt"
-experiencesFile = "Experiences.txt"
-friendsFile = "Friends.txt"
-jobsFile = "Jobs.txt"
-loginsFile = "Logins.txt"
-messagesFile = "Messages.txt"
-profilesFile = "Profiles.txt"
-requestsFile = "Requests.txt"
-skillsFile = "Skills.txt"
-successStoryFile = "SuccessStory.txt"
 
 class TestMainFiles:
     """Check for files in the root directory."""
+    def test_ApplicationsFile(self):
+        assert path.exists("Applications.txt")
+
+    def test_CompletedCoursesFile(self):
+        assert path.exists("CompletedCourses.txt")
+
     def test_EducationFile(self):
-        assert path.exists(educationFile)
+        assert path.exists("Education.txt")
 
     def test_ExperiencesFile(self):
-        assert path.exists(experiencesFile)
+        assert path.exists("Experiences.txt")
 
     def test_FriendsFile(self):
-        assert path.exists(friendsFile)
+        assert path.exists("Friends.txt")
 
     def test_JobsFile(self):
-        assert path.exists(jobsFile)
+        assert path.exists("Jobs.txt")
 
     def test_LoginsFile(self):
-        assert path.exists(loginsFile)
+        assert path.exists("Logins.txt")
 
     def test_MessagesFile(self):
-        assert path.exists(messagesFile)
+        assert path.exists("Messages.txt")
+
+    def test_NewUsersFile(self):
+        assert path.exists("NewUsers.txt")
 
     def test_ProfilesFile(self):
-        assert path.exists(profilesFile)
+        assert path.exists("Profiles.txt")
 
     def test_RequestsFile(self):
-        assert path.exists(requestsFile)
+        assert path.exists("Requests.txt")
+
+    def test_SavedJobsFile(self):
+        assert path.exists("SavedJobs.txt")
 
     def test_SkillsFile(self):
-        assert path.exists(skillsFile)
+        assert path.exists("Skills.txt")
 
     def test_SuccessStoryFile(self):
-        assert path.exists(successStoryFile)
+        assert path.exists("SuccessStory.txt")
 
 
-class TestMainFilesParameters:
+class TestMainFilesContent:
     """Check each input file for the appropriate number of file parameters."""
     def test_EducationFile(self):
-        if checkIfEmpty(educationFile):
-            assert True
-        else:
-            assert checkParamLength(educationFile, 4)
+        assert checkParamLength("Education.txt", 4)
 
     def test_ExperiencesFile(self):
-        if checkIfEmpty(experiencesFile):
-            assert True
-        else:
-            assert checkParamLength(experiencesFile, 7)
+        assert checkParamLength("Experiences.txt", 7)
+
+    def test_FriendsFile(self):
+        assert checkIfEmpty("Friends.txt")
 
     def test_JobsFile(self):
-        if checkIfEmpty(jobsFile):
-            assert True
-        else:
-            assert checkParamLength(jobsFile, 5)
+        assert checkParamLength("Jobs.txt", 6)
 
     def test_LoginsFile(self):
-        if checkIfEmpty(loginsFile):
-            assert True
-        else:
-            assert checkParamLength(loginsFile, 9)
+        assert checkParamLength("Logins.txt", 9)
 
     def test_ProfilesFile(self):
-        if checkIfEmpty(profilesFile):
-            assert True
-        else:
-            assert checkParamLength("Profiles.txt", 7)
+        assert checkParamLength("Profiles.txt", 7)
+
+    def test_SkillsFile(self):
+        assert checkIfEmpty("Skills.txt")
+
+    def test_SuccessStoryFile(self):
+        assert checkIfEmpty("SuccessStory.txt")

@@ -16,4 +16,4 @@ class TestNotificationFiles:
         assert path.exists(fileDir + "DeletedJobs.txt")
 
     def test_NewJobsFile(self):
-        assert path.exists(fileDir + "NewJobs.txt")
+        assert path.exists(fileDir + "NewJobNotifications.txt")
